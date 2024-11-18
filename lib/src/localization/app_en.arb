@@ -1,0 +1,6 @@
+{
+  "appTitle": "Energy Bill Reading",
+  "@appTitle": {
+    "description": "The title of the application"
+  }
+}

@@ -1,0 +1,13 @@
+class Assets {
+  static const String assetsPath = 'assets';
+  static const String imagePath = '$assetsPath/images';
+  static const String iconPath = '$assetsPath/iconos';
+
+  //icons
+  static const String washingMachine = '$iconPath/washing-machine.png';
+  static const String heating = '$iconPath/heating.png';
+  static const String oven = '$iconPath/oven.png';
+  static const String electricStove = '$iconPath/electric-stove.png';
+  static const String dishWasher = '$iconPath/dishwasher.png';
+  static const String microWave = '$iconPath/microwave-oven.png';
+}

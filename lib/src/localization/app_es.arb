@@ -1,0 +1,6 @@
+{
+    "appTitle": "Lectura de facturas de energía",
+    "@appTitle": {
+        "description": "The title of the application"
+    }
+}
