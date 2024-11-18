@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/home/pages/home_page_animation.dart';
-import 'package:recibo_facil/src/home/pages/reader_home_page.dart';
+import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -87,7 +87,7 @@ class MyApp extends StatelessWidget {
                     return SettingsView(
                       controller: settingsController,
                     );
-                  case ReaderHomePage.routeName:
+                  case HomePageReader.routeName:
                   default:
                     return HomePageAnimation();
                 }

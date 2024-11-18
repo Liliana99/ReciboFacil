@@ -5,24 +5,22 @@ import 'dart:math';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/home/utils/recognized_text.dart';
 import 'package:recibo_facil/src/home/widgets/graphic.dart';
 import 'package:recibo_facil/src/home/widgets/shimmer.dart';
 import 'package:recibo_facil/src/home/widgets/title_home.dart';
 
-class ReaderHomePage extends StatefulWidget {
+class HomePageReader extends StatefulWidget {
   static const routeName = '/home_page';
 
   @override
-  State<ReaderHomePage> createState() => _ReaderHomePageState();
+  State<HomePageReader> createState() => _HomePageReaderState();
 }
 
-class _ReaderHomePageState extends State<ReaderHomePage> {
+class _HomePageReaderState extends State<HomePageReader> {
   String scannedText = "";
   bool isScanned = false;
   final ImagePicker _picker = ImagePicker();
