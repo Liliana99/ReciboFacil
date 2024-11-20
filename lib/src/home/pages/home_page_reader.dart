@@ -5,13 +5,21 @@ import 'dart:math';
 import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
+import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/home/utils/recognized_text.dart';
+import 'package:recibo_facil/src/home/widgets/custom_buttom_loader.dart';
 import 'package:recibo_facil/src/home/widgets/graphic.dart';
-import 'package:recibo_facil/src/home/widgets/shimmer.dart';
+import 'package:recibo_facil/src/home/widgets/info_card_container.dart';
+import 'package:recibo_facil/src/home/widgets/shimmer_home.dart';
 import 'package:recibo_facil/src/home/widgets/title_home.dart';
+
+import '../../services/service_locator.dart';
 
 class HomePageReader extends StatefulWidget {
   static const routeName = '/home_page';
@@ -32,6 +40,8 @@ class _HomePageReaderState extends State<HomePageReader> {
 
   late Timer timer;
   DateTime currentTime = DateTime.now();
+
+  final homeCubit = getIt<HomeCubit>();
 
   Future<void> _loadPdf(final String pdfPath) async {
     final docRef = await PdfDocumentRefFile(pdfPath);
@@ -84,43 +94,6 @@ class _HomePageReaderState extends State<HomePageReader> {
     } finally {
       textRecognizer.close();
     }
-  }
-
-  Future<void> searchTextOnPdf(String query) async {
-    if (document.pages.isEmpty) {
-      print("El documento no contiene páginas.");
-      return;
-    }
-
-    print(
-        "Iniciando búsqueda para '$query' en ${document.pages.length} páginas.");
-
-    for (int page = 1; page <= document.pages.length; page++) {
-      print("Buscando en la página $page...");
-      final pageText = await document.pages[page - 1].loadText();
-
-      if (pageText != null) {
-        final lines = pageText.fullText.split('\n');
-        for (final line in lines) {
-          if (line.contains(query)) {
-            print("Término encontrado en la página $page: $line");
-            setState(() {
-              scannedText = pageText.fullText;
-              if (query == "Periodo de facturación") {
-                month = extractBillingPeriod(line) ?? '';
-              } else {
-                totalAmount = getValueWithCurrency(line) ?? '';
-              }
-            });
-            break;
-          }
-        }
-      } else {
-        print("No se pudo cargar el texto de la página $page.");
-      }
-    }
-
-    print("Búsqueda finalizada.");
   }
 
   Future<void> _takePhoto() async {
@@ -190,15 +163,15 @@ class _HomePageReaderState extends State<HomePageReader> {
   Future<void> selectAndOpenPdf(
     BuildContext context,
   ) async {
-    // Seleccionar archivo PDF
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['pdf'], // Limitar a archivos PDF
+      allowedExtensions: ['pdf'],
     );
 
     if (result != null) {
       String? pdfPath = result.files.single.path;
       String query = "a pagar";
+      homeCubit.updateIsScanning();
       setState(() {
         isScanned = true;
       });
@@ -210,17 +183,12 @@ class _HomePageReaderState extends State<HomePageReader> {
             query = "Periodo de facturación";
           }
           if (mounted) {
-            await searchTextOnPdf(query);
+            await homeCubit.searchPdf(document, query);
           }
         }
         setState(() {
           isScanned = false;
         });
-
-        // Navegar al widget PdfSearchPage con la ruta del PDF
-        // Navigator.of(context).push(MaterialPageRoute(
-        //   builder: (context) => PdfSearchPage(pdfPath: pdfPath),
-        // ));
       }
     } else {
       // Usuario canceló la selección
@@ -251,6 +219,13 @@ class _HomePageReaderState extends State<HomePageReader> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
+    final isMultiline = _isMultiline(
+      month,
+      TextStyle(fontSize: 6, color: Colors.blue),
+      30,
+      3,
+    );
+
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -265,285 +240,116 @@ class _HomePageReaderState extends State<HomePageReader> {
             ),
           ),
         ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: ListView(
-              //  crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(height: 10),
-                if (isScanned)
-                  Shimmer(
-                    linearGradient: shimmerGradient,
-                    child: ShimmerLoading(
-                      isLoading: isScanned,
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 100,
-                          ),
-                          Container(
-                            height: size.height * 0.25,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(50)),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            height: size.height * 0.25,
-                            decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(50)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                if (scannedText.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 80),
-                    child: Stack(
-                      children: [
-                        Clock12Hour(),
-                        // GraphicCustom(
-                        //     // clock: AnalogClock(currentTime: currentTime),
-                        //     ),
-                        // Positioned(
-                        //   top: 265,
-                        //   left: 100,
-                        //   child: Column(
-                        //     children: [
-                        //       Icon(Icons.nightlight_round,
-                        //           color: const Color.fromARGB(255, 62, 156, 58),
-                        //           size: 30),
-                        //       SizedBox(height: 10),
-                        //       Text(
-                        //         "Horas Nocturnas",
-                        //         style: TextStyle(
-                        //             color: Colors.black,
-                        //             fontWeight: FontWeight.bold),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  ),
-                if (scannedText.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 40),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: size.width * 0.40,
-                          height: _isMultiline(
-                                  month,
-                                  TextStyle(fontSize: 6, color: Colors.blue),
-                                  30,
-                                  3)
-                              ? size.height * 0.30
-                              : size.height * 0.20,
-                          child: InfoCard(
-                            icon: Icon(
-                              Icons.euro,
-                              size: 40,
-                              color: Colors.blue,
-                            ),
-                            label: 'Total a Pagar',
-                            value: totalAmount,
-                            color: Colors.blue,
+        body: BlocListener<HomeCubit, HomeStateCubit>(
+          listener: (context, state) {
+            if (state.scannedText != null &&
+                state.totalAmount != null &&
+                state.month != null) {
+              print(
+                  'Datos actualizados: ${state.scannedText}, ${state.totalAmount}, ${state.month}');
+            }
+          },
+          child: BlocBuilder<HomeCubit, HomeStateCubit>(
+            builder: (context, state) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: ListView(
+                    children: [
+                      SizedBox(height: 10),
+                      if (state.isScanning!)
+                        ShimmerHomePage(isScanned: isScanned, size: size),
+                      if (state.scannedText != null &&
+                          state.totalAmount != null &&
+                          state.month != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 80),
+                          child: Stack(
+                            children: [
+                              Clock12Hour(),
+                            ],
                           ),
                         ),
-                        SizedBox(
-                          width: size.width * 0.40,
-                          height: _isMultiline(
-                                  month,
-                                  TextStyle(fontSize: 6, color: Colors.blue),
-                                  30,
-                                  3)
-                              ? size.height * 0.30
-                              : size.height * 0.20,
-                          child: InfoCard(
-                            icon: Image.asset(
-                              'assets/iconos/calendar.png',
-                              width: 30,
-                              height: 30,
-                              color: Colors.blue,
-                            ),
-                            label: 'Mes Facturado',
-                            value: month,
-                            color: Colors.blue,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                SizedBox(height: 20),
-                if (scannedText.isEmpty && !isScanned)
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          height: 120,
-                          child: ElevatedButton(
-                            onPressed: _selectFromGallery,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Color(0xFF81D4FA), // Light blue button
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40.0),
+                      if (state.scannedText != null &&
+                          state.totalAmount != null &&
+                          state.month != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              InfoCardContainer(
+                                size: size,
+                                isMultiline: isMultiline,
+                                icon: Icon(
+                                  Icons.euro,
+                                  size: 40,
+                                  color: Colors.blue,
+                                ),
+                                label: 'Total a Pagar',
+                                value: state.totalAmount ?? '',
+                                color: Colors.blue,
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: Wrap(
-                              children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: SizedBox(
-                                    height: 50,
-                                    width: 50,
-                                    child: Image.asset(
-                                        'assets/iconos/gallery.png',
-                                        color: Colors.white),
-                                  ),
+                              InfoCardContainer(
+                                size: size,
+                                isMultiline: isMultiline,
+                                icon: Image.asset(
+                                  'assets/iconos/calendar.png',
+                                  width: 30,
+                                  height: 30,
+                                  color: Colors.blue,
                                 ),
-                                SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Seleccionar desde Galería',
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                              ],
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 50),
-                        SizedBox(
-                          height: 120,
-                          child: ElevatedButton(
-                            onPressed: _takePhoto,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF81D4FA),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40.0),
+                                label: 'Mes Facturado',
+                                value: state.month ?? '',
+                                color: Colors.blue,
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: Wrap(
-                              children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: SizedBox(
-                                    height: 50,
-                                    width: 50,
-                                    child: Image.asset(
-                                        'assets/iconos/camera.png',
-                                        color: Colors.white),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Escanear factura',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            ],
                           ),
                         ),
-                        SizedBox(height: 50),
+                      20.ht,
+                      if (state.scannedText == null && !state.isScanning!)
                         SizedBox(
-                          height: 120,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              selectAndOpenPdf(context);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Color(0xFF81D4FA), // Light blue button
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(40.0),
+                          height: MediaQuery.of(context).size.height,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              CustomButton(
+                                onPressed: _selectFromGallery,
+                                text: 'Seleccionar desde Galería',
+                                iconPath: 'assets/iconos/gallery.png',
                               ),
-                              padding: EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: Wrap(
-                              children: [
-                                Align(
-                                  alignment: Alignment.center,
-                                  child: SizedBox(
-                                    height: 50,
-                                    width: 50,
-                                    child: Image.asset('assets/iconos/pdf.png',
-                                        color: Colors.red),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Text(
-                                        'Seleccionar PDF',
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w400,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                              ],
-                            ),
+                              50.ht,
+                              CustomButton(
+                                onPressed: _takePhoto,
+                                text: 'Escanear factura',
+                                iconPath: 'assets/iconos/camera.png',
+                              ),
+                              50.ht,
+                              CustomButton(
+                                onPressed: () {
+                                  selectAndOpenPdf(context);
+                                },
+                                text: 'Seleccionar PDF',
+                                iconPath: 'assets/iconos/pdf.png',
+                                iconColor: Colors
+                                    .red, // Cambiar el color del icono para este botón
+                              ),
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.30,
+                              ),
+                            ],
                           ),
                         ),
+                      if (state.isScanning!)
                         SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.30,
+                          height: 200,
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                if (isScanned)
-                  SizedBox(
-                    height: 200,
-                  ),
-              ],
-            ),
+                ),
+              );
+            },
           ),
         ),
       ),

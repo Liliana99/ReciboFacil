@@ -13,7 +13,6 @@ class EnergySegmentAdvice extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Definir los segmentos con consejos específicos e imágenes
-
     final currentSegment = getCurrentSegment(currentTime);
 
     // Construir la interfaz con texto y las imágenes correspondientes
@@ -27,15 +26,17 @@ class EnergySegmentAdvice extends StatelessWidget {
               style: TextStyle(fontSize: 16, color: Colors.black),
               children: [
                 TextSpan(
-                  text: "Estamos en el segmento: ",
+                  text: "Estamos en el segmento : ",
                 ),
                 TextSpan(
-                  text: "${currentSegment["name"]} ",
+                  text: "${currentSegment["name"]}. ",
                   style: parenthesisStyle,
                 ),
                 TextSpan(
-                  text:
-                      "(${currentSegment["range"]}) : ${currentSegment["tip"]}",
+                  text: "\n\n", // Salto de línea antes del último TextSpan
+                ),
+                TextSpan(
+                  text: "${currentSegment["tip"]}",
                 ),
               ],
             ),
@@ -62,64 +63,116 @@ class EnergySegmentAdvice extends StatelessWidget {
   }
 }
 
-// Helper para aplicar estilo personalizado al texto entre paréntesis
-String styleText(String text, TextStyle style) {
-  return '\u001b[38;5;${style.color!.value}m$text\u001b[0m';
-}
-
 final segments = [
   {
     "name": "Horas Valle",
-    "range": "12:00 AM - 04:00 AM",
-    "start": TimeOfDay(hour: 0, minute: 0),
-    "end": TimeOfDay(hour: 4, minute: 0),
+    "range": "00:00 AM - 08:00 AM",
+    "periods": [
+      {
+        "start": TimeOfDay(hour: 0, minute: 0),
+        "end": TimeOfDay(hour: 8, minute: 0),
+      },
+    ],
     "tip": "Puedes enchufar dispositivos de alto consumo.",
     "images": [
       Assets.microWave,
       Assets.washingMachine,
       Assets.oven,
       Assets.electricStove,
-    ]
+    ],
   },
   {
     "name": "Horas Llano",
-    "range": "04:00 AM - 06:00 AM",
-    "start": TimeOfDay(hour: 4, minute: 0),
-    "end": TimeOfDay(hour: 6, minute: 0),
+    "range": "08:00 AM - 10:00 AM / 02:00 PM - 06:00 PM / 10:00 PM - 12:00 AM",
+    "periods": [
+      {
+        "start": TimeOfDay(hour: 8, minute: 0),
+        "end": TimeOfDay(hour: 10, minute: 0),
+      },
+      {
+        "start": TimeOfDay(hour: 14, minute: 0),
+        "end": TimeOfDay(hour: 18, minute: 0),
+      },
+      {
+        "start": TimeOfDay(hour: 22, minute: 0),
+        "end": TimeOfDay(hour: 23, minute: 59),
+      },
+    ],
     "tip": "Enchufa dispositivos moderadamente.",
-    "images": [Assets.washingMachine, Assets.dishWasher]
+    "images": [
+      Assets.washingMachine,
+      Assets.dishWasher,
+      Assets.vacuumCleaner,
+    ],
   },
   {
     "name": "Horas Punta",
-    "range": "06:00 AM - 09:00 AM",
-    "start": TimeOfDay(hour: 6, minute: 0),
-    "end": TimeOfDay(hour: 9, minute: 0),
+    "range": "10:00 AM - 02:00 PM / 06:00 PM - 10:00 PM",
+    "periods": [
+      {
+        "start": TimeOfDay(hour: 10, minute: 0),
+        "end": TimeOfDay(hour: 14, minute: 0),
+      },
+      {
+        "start": TimeOfDay(hour: 18, minute: 0),
+        "end": TimeOfDay(hour: 22, minute: 0),
+      },
+    ],
     "tip": "Evita dispositivos de alto consumo.",
-    "images": []
-  },
-  {
-    "name": "Horas Llano",
-    "range": "09:00 AM - 04:00 PM",
-    "start": TimeOfDay(hour: 9, minute: 0),
-    "end": TimeOfDay(hour: 16, minute: 0),
-    "tip": "Prioriza dispositivos necesarios.",
-    "images": [Assets.dishWasher, Assets.microWave]
-  },
-  {
-    "name": "Horas Valle",
-    "range": "06:00 PM - 12:00 AM",
-    "start": TimeOfDay(hour: 18, minute: 0),
-    "end": TimeOfDay(hour: 23, minute: 59),
-    "tip": "Usa cómodamente dispositivos de alto consumo.",
     "images": [
-      Assets.microWave,
-      Assets.dishWasher,
-      Assets.oven,
       Assets.heating,
-      Assets.electricStove,
-    ]
-  }
+      Assets.airConditioner,
+    ],
+  },
 ];
+
+// Helper: Verificar si una hora está dentro de múltiples rangos
+bool isTimeInRanges(TimeOfDay current, List<Map<String, TimeOfDay>> periods) {
+  for (final period in periods) {
+    final start = period["start"]!;
+    final end = period["end"]!;
+    if (isTimeInRange(current, start, end)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Encontrar el segmento correspondiente
+Map<String, dynamic> getCurrentSegment(final DateTime currentTime) {
+  final current = timeToTimeOfDay(currentTime);
+
+  // Si es domingo, todo es "Horas Valle"
+  if (currentTime.weekday == DateTime.sunday) {
+    return {
+      "name": "Horas Valle",
+      "range": "Todo el día",
+      "tip": "Puedes enchufar dispositivos de alto consumo todo el día.",
+      "images": [
+        Assets.microWave,
+        Assets.washingMachine,
+        Assets.oven,
+        Assets.electricStove,
+      ]
+    };
+  }
+
+  // Evaluar segmentos para días normales
+  for (final segment in segments) {
+    final periods = segment["periods"] as List<Map<String, TimeOfDay>>;
+    if (isTimeInRanges(current, periods)) {
+      return segment;
+    }
+  }
+
+  // Si no se encuentra un segmento
+  return {
+    "name": "Sin segmento",
+    "range": "N/A",
+    "tip": "No hay información disponible para este horario.",
+    "images": []
+  };
+}
 
 // Helper: Convertir DateTime a TimeOfDay
 TimeOfDay timeToTimeOfDay(DateTime time) {
@@ -132,34 +185,11 @@ bool isTimeInRange(TimeOfDay current, TimeOfDay start, TimeOfDay end) {
   final startMinutes = start.hour * 60 + start.minute;
   final endMinutes = end.hour * 60 + end.minute;
 
-  return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
-}
-
-// Encontrar el segmento correspondiente
-Map<String, dynamic> getCurrentSegment(final DateTime currentTime) {
-  final current = timeToTimeOfDay(currentTime);
-
-  for (final segment in segments) {
-    final start = segment["start"] as TimeOfDay;
-    final end = segment["end"] as TimeOfDay;
-
-    // Depurar comparaciones
-    print("Hora actual: ${current.hour}:${current.minute}");
-    print(
-        "Comparando con segmento: ${segment["name"]} (${start.hour}:${start.minute} - ${end.hour}:${end.minute})");
-
-    if (isTimeInRange(current, start, end)) {
-      print("Segmento encontrado: ${segment["name"]}");
-      return segment;
-    }
+  if (startMinutes <= endMinutes) {
+    // Rango normal, sin cruzar la medianoche
+    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  } else {
+    // Rango que cruza la medianoche
+    return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
   }
-
-  // Si no se encuentra un segmento
-  print("No se encontró segmento para la hora actual.");
-  return {
-    "name": "Sin segmento",
-    "range": "N/A",
-    "tip": "No hay información disponible para este horario.",
-    "images": []
-  };
 }
