@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
+import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
 import 'package:recibo_facil/src/home/blocs/utils/get_energy_advice.dart';
 import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
 import 'package:recibo_facil/src/home/utils/current_time_format_12.dart';
@@ -9,6 +13,8 @@ import 'package:recibo_facil/src/home/widgets/card_decoration.dart';
 import 'dart:math';
 
 import 'package:recibo_facil/src/home/widgets/title_home.dart';
+
+import '../../services/service_locator.dart';
 
 class HomePageAnimation extends StatefulWidget {
   @override
@@ -20,10 +26,25 @@ class _HomePageAnimationState extends State<HomePageAnimation>
   late AnimationController _controller;
   late Animation<double> _separationAnimation;
   late Animation<double> _breathingAnimation;
-
-  final currentTime = DateTime.now();
+  late Timer _timer;
+  String _currentTime = '';
+  late DateTime updatedTime;
   late final currentSegment;
   late final colors;
+
+  late final segment;
+
+  void _updateTime() {
+    setState(() {
+      _currentTime = _formatCurrentTime();
+      updatedTime = DateTime.now();
+    });
+  }
+
+  String _formatCurrentTime() {
+    final now = DateTime.now();
+    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
@@ -40,20 +61,33 @@ class _HomePageAnimationState extends State<HomePageAnimation>
     _breathingAnimation = Tween<double>(begin: 100, end: 120).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    currentSegment = getCurrentSegment(currentTime);
+    currentSegment = getCurrentSegment(DateTime.now());
     colors =
         segmentColors['${currentSegment["name"]}'] ?? segmentColors["default"]!;
+
+    _updateTime(); // Inicializa la hora al cargar
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _updateTime(); // Actualiza cada segundo
+    });
+
+    segment = getSegmentForCurrentTime(
+      timeToTimeOfDay(updatedTime),
+      segments,
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    final currentTime = DateTime.now();
+    final isSunday = (DateTime.now()).weekday == DateTime.sunday;
 
     return Scaffold(
       body: Padding(
@@ -69,11 +103,11 @@ class _HomePageAnimationState extends State<HomePageAnimation>
                 builder: (context, child) {
                   return CustomPaint(
                     painter: CircleWithLabelsPainter(
-                      separation: _separationAnimation.value,
-                      radius: _breathingAnimation.value,
-                      activeSegmentName: '${currentSegment["name"]}',
-                      animationFactor: _controller.value * 0.2,
-                    ),
+                        separation: _separationAnimation.value,
+                        radius: _breathingAnimation.value,
+                        activeSegmentName: '${currentSegment["name"]}',
+                        animationFactor: _controller.value * 0.2,
+                        isSunday: isSunday),
                     child: SizedBox(
                       width: 300,
                       height: 300,
@@ -82,12 +116,12 @@ class _HomePageAnimationState extends State<HomePageAnimation>
                 },
               ),
             ),
-            10.ht,
+            40.ht,
             Padding(
               padding: EdgeInsets.only(left: size.width * 0.09),
               child: EnergyTip(
                   icon: Icons.lightbulb,
-                  text: "Hora actual ${getCurrentTime12HourFormat()}",
+                  text: "Hora actual $_currentTime",
                   newStyte: GoogleFonts.raleway(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -107,6 +141,8 @@ class _HomePageAnimationState extends State<HomePageAnimation>
                       parenthesisStyle: TextStyle(
                           color: colors["border"]!,
                           fontWeight: FontWeight.bold),
+                      updatedTime: updatedTime,
+                      peakWidgets: segment["widgets"] as List<Widget>,
                     ),
                   ),
                   segmentTime: '${currentSegment["name"]}'),
@@ -117,7 +153,12 @@ class _HomePageAnimationState extends State<HomePageAnimation>
               child: FilledButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePageReader()),
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: getIt<HomeCubit>(),
+                      child: HomePageReader(),
+                    ),
+                  ),
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor:
@@ -139,12 +180,14 @@ class CircleWithLabelsPainter extends CustomPainter {
   final double radius;
   final String activeSegmentName; // Segmento activo por nombre
   final double animationFactor; // Factor de animación para el segmento activo
+  final bool isSunday;
 
   CircleWithLabelsPainter({
     required this.separation,
     required this.radius,
     required this.activeSegmentName,
     required this.animationFactor,
+    required this.isSunday,
   });
 
   @override
@@ -152,50 +195,108 @@ class CircleWithLabelsPainter extends CustomPainter {
     Paint paint = Paint()..style = PaintingStyle.fill;
     final center = Offset(size.width / 2, size.height / 2);
 
+    // Si es domingo, dibujar todo el círculo de verde
+    if (isSunday) {
+      paint.color = Colors.green;
+
+      // Dibujar el círculo completo
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        -pi / 2, // Inicia en -90 grados
+        2 * pi, // Barrido de 360 grados
+        true,
+        paint,
+      );
+
+      // Añadir etiqueta para "Horas Valle"
+      final textPainter = TextPainter(
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+        text: const TextSpan(
+          children: [
+            TextSpan(
+              text: "Horas Valle\n",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            TextSpan(
+              text: "Todo el día",
+              style: TextStyle(
+                fontSize: 12,
+                fontStyle: FontStyle.italic,
+                color: Colors.black87,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          center.dx - textPainter.width / 2,
+          center.dy - textPainter.height / 2,
+        ),
+      );
+
+      return; // Finaliza el dibujo aquí si es domingo
+    }
+
     // Colors and labels for sections
     final sections = [
       {
         "color": Colors.green,
         "startAngle": -90.0,
-        "sweepAngle": 120.0,
+        "sweepAngle": 120.0, // 00:00 - 08:00 (Horas Valle)
         "label": "Horas Valle\n",
-        "timeRange": "(12:00-4:00)",
+        "timeRange": "(00:00 - 08:00)",
         "labelAngle": -30.0,
       },
       {
         "color": Colors.yellow,
         "startAngle": 30.0,
-        "sweepAngle": 60.0,
+        "sweepAngle": 30.0, // 08:00 - 10:00 (Horas Llano)
         "label": "Horas Llano\n",
-        "timeRange": "(4:00-6:00)",
+        "timeRange": "(08:00 - 10:00)",
         "labelAngle": 45.0,
       },
       {
         "color": Colors.red,
-        "startAngle": 90.0,
-        "sweepAngle": 90.0,
+        "startAngle": 60.0,
+        "sweepAngle": 60.0, // 10:00 - 14:00 (Horas Punta)
         "label": "Horas Punta\n",
-        "timeRange": "(6:00-9:00)",
-        "labelAngle": 135.0,
+        "timeRange": "(10:00 - 14:00)",
+        "labelAngle": 90.0,
       },
       {
         "color": Colors.yellow,
-        "startAngle": 180.0,
-        "sweepAngle": 60.0,
+        "startAngle": 120.0,
+        "sweepAngle": 60.0, // 14:00 - 18:00 (Horas Llano)
         "label": "Horas Llano\n",
-        "timeRange": "(9:00-11:00)",
-        "labelAngle": 225.0,
+        "timeRange": "(14:00 - 18:00)",
+        "labelAngle": 135.0,
       },
       {
         "color": Colors.red,
-        "startAngle": 240.0,
-        "sweepAngle": 30.0,
+        "startAngle": 180.0,
+        "sweepAngle": 60.0, // 18:00 - 22:00 (Horas Punta)
         "label": "Horas Punta\n",
-        "timeRange": "(11:00-12:00)",
+        "timeRange": "(18:00 - 22:00)",
+        "labelAngle": 225.0,
+      },
+      {
+        "color": Colors.yellow,
+        "startAngle": 240.0,
+        "sweepAngle": 60.0, // 22:00 - 00:00 (Horas Llano)
+        "label": "Horas Llano\n",
+        "timeRange": "(22:00 - 00:00)",
         "labelAngle": 270.0,
       },
     ];
-
     // Draw segments with animation
     for (int i = 0; i < sections.length; i++) {
       final section = sections[i];
