@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
+import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
 import 'package:recibo_facil/src/home/blocs/utils/get_energy_advice.dart';
 import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
 import 'package:recibo_facil/src/home/utils/current_time_format_12.dart';
@@ -9,6 +13,8 @@ import 'package:recibo_facil/src/home/widgets/card_decoration.dart';
 import 'dart:math';
 
 import 'package:recibo_facil/src/home/widgets/title_home.dart';
+
+import '../../services/service_locator.dart';
 
 class HomePageAnimation extends StatefulWidget {
   @override
@@ -20,9 +26,25 @@ class _HomePageAnimationState extends State<HomePageAnimation>
   late AnimationController _controller;
   late Animation<double> _separationAnimation;
   late Animation<double> _breathingAnimation;
-
+  late Timer _timer;
+  String _currentTime = '';
+  late DateTime updatedTime;
   late final currentSegment;
   late final colors;
+
+  late final segment;
+
+  void _updateTime() {
+    setState(() {
+      _currentTime = _formatCurrentTime();
+      updatedTime = DateTime.now();
+    });
+  }
+
+  String _formatCurrentTime() {
+    final now = DateTime.now();
+    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}:${now.second.toString().padLeft(2, '0')}';
+  }
 
   @override
   void initState() {
@@ -42,11 +64,22 @@ class _HomePageAnimationState extends State<HomePageAnimation>
     currentSegment = getCurrentSegment(DateTime.now());
     colors =
         segmentColors['${currentSegment["name"]}'] ?? segmentColors["default"]!;
+
+    _updateTime(); // Inicializa la hora al cargar
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      _updateTime(); // Actualiza cada segundo
+    });
+
+    segment = getSegmentForCurrentTime(
+      timeToTimeOfDay(updatedTime),
+      segments,
+    );
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _timer.cancel();
     super.dispose();
   }
 
@@ -88,7 +121,7 @@ class _HomePageAnimationState extends State<HomePageAnimation>
               padding: EdgeInsets.only(left: size.width * 0.09),
               child: EnergyTip(
                   icon: Icons.lightbulb,
-                  text: "Hora actual ${getCurrentTime12HourFormat()}",
+                  text: "Hora actual $_currentTime",
                   newStyte: GoogleFonts.raleway(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -108,6 +141,8 @@ class _HomePageAnimationState extends State<HomePageAnimation>
                       parenthesisStyle: TextStyle(
                           color: colors["border"]!,
                           fontWeight: FontWeight.bold),
+                      updatedTime: updatedTime,
+                      peakWidgets: segment["widgets"] as List<Widget>,
                     ),
                   ),
                   segmentTime: '${currentSegment["name"]}'),
@@ -118,7 +153,12 @@ class _HomePageAnimationState extends State<HomePageAnimation>
               child: FilledButton(
                 onPressed: () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HomePageReader()),
+                  MaterialPageRoute(
+                    builder: (context) => BlocProvider.value(
+                      value: getIt<HomeCubit>(),
+                      child: HomePageReader(),
+                    ),
+                  ),
                 ),
                 style: FilledButton.styleFrom(
                   backgroundColor:

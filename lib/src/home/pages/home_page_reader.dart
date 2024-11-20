@@ -251,12 +251,14 @@ class _HomePageReaderState extends State<HomePageReader> {
           },
           child: BlocBuilder<HomeCubit, HomeStateCubit>(
             builder: (context, state) {
+              print('state is scanning? ${state.isScanning}');
+
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: ListView(
                     children: [
-                      SizedBox(height: 10),
+                      10.ht,
                       if (state.isScanning!)
                         ShimmerHomePage(isScanned: isScanned, size: size),
                       if (state.scannedText != null &&
