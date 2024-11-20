@@ -28,8 +28,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  final pdfRepository = PdfRepository();
-
   runApp(BlocProvider(
     create: (context) => getIt<HomeCubit>(),
     child: MyApp(settingsController: settingsController),
