@@ -7,6 +7,7 @@ import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
 import 'package:recibo_facil/src/home/blocs/utils/get_energy_advice.dart';
 import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
+import 'package:recibo_facil/src/home/pages/prueba.dart';
 import 'package:recibo_facil/src/home/utils/current_time_format_12.dart';
 import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/home/widgets/card_decoration.dart';

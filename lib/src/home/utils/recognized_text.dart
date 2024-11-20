@@ -142,7 +142,6 @@ String? getValueWithCurrency(String text) {
   if (match != null) {
     final value = match.group(1); // Capturar el valor
     return value;
-    print("Valor encontrado: $value €");
   } else {
     print("No se encontró un valor numérico con moneda en esta línea.");
   }

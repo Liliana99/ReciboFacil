@@ -20,19 +20,45 @@ class HomeCubit extends Cubit<HomeStateCubit> {
       emit(state.copyWith(isScanning: !state.isScanning!));
 
   Future<void> searchPdf(PdfDocument document, String query) async {
-    emit(state.copyWith(isScanning: true));
+    emit(
+      state.copyWith(isScanning: true),
+    );
+
     try {
-      print('Entro en metodo en el cubit');
-      final results = await _pdfRepository.searchTextOnPdf(document, query);
-      if (results != null) {
-        emit(state.copyWith(
-            isScanning: false,
-            scannedText: results.scannedText,
-            month: results.month,
-            totalAmount: results.totalAmount));
+      // Ejecutar las búsquedas en paralelo
+
+      final results = await Future.wait([
+        _pdfRepository.searchTextOnPdf(document, 'a pagar'),
+        _pdfRepository.searchTextOnPdf(document, 'Periodo de facturación'),
+        _pdfRepository.searchTextOnPdf(document, 'Punta')
+      ]);
+
+      // Asignar los resultados
+      final totalAmountResults = results[0];
+      final monthResults = results[1];
+
+      // Acumular los resultados
+      final newState = state.copyWith(
+        scannedText:
+            '${totalAmountResults?.scannedText ?? ""}\n${monthResults?.scannedText ?? ""}',
+        totalAmount: totalAmountResults?.totalAmount ?? state.totalAmount,
+        month: monthResults?.month ?? state.month,
+        isScanning: false,
+      );
+
+      // Emitir el estado final después de acumular todos los resultados
+      if (newState != state) {
+        emit(newState);
+        print(
+            'Nuevo estado emitido: ${newState.scannedText}, ${newState.totalAmount}, ${newState.month}');
+      } else {
+        print("El nuevo estado es igual al anterior, no se emite un cambio.");
       }
     } on Exception catch (e) {
       print('Error searching for PDF: $e');
+      emit(state.copyWith(
+          isScanning:
+              false)); // Finalizar el estado de escaneo en caso de error
     }
   }
 }

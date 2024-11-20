@@ -9,30 +9,40 @@ class PdfRepository {
       return ResponsePdfReader(scannedText: 'No se encontró el término');
     }
 
-    Map<String, String> results = {};
+    var response = ResponsePdfReader(scannedText: '');
 
     print(
         "Iniciando búsqueda para '$query' en ${document.pages.length} páginas.");
 
+    // Iterar por todas las páginas del documento
     for (int page = 1; page <= document.pages.length; page++) {
       final pageText = await document.pages[page - 1].loadText();
 
       if (pageText != null) {
         final lines = pageText.fullText.split('\n');
+
+        // Iterar por todas las líneas de la página
         for (final line in lines) {
           if (line.contains(query)) {
             print("Término encontrado en la página $page: $line");
 
-            results['scannedText'] = pageText.fullText;
-            if (query == "Periodo de facturación") {
-              return ResponsePdfReader(
-                  scannedText: pageText.fullText,
-                  month: extractBillingPeriod(line));
-            } else {
-              return ResponsePdfReader(
-                  scannedText: pageText.fullText,
-                  totalAmount: getValueWithCurrency(line));
+            // Acumular valores según el query y actualizar `response` usando `copyWith`
+            if (query == "Periodo de facturación" && response.month == null) {
+              response = response.copyWith(
+                month: extractBillingPeriod(line),
+              );
+            } else if (query == "a pagar" && response.totalAmount == null) {
+              response = response.copyWith(
+                totalAmount: getValueWithCurrency(line),
+              );
             }
+
+            // Acumular el texto escaneado
+            response = response.copyWith(
+              scannedText: response.scannedText.isEmpty
+                  ? line
+                  : '${response.scannedText}\n$line',
+            );
           }
         }
       } else {
@@ -41,7 +51,13 @@ class PdfRepository {
     }
 
     print("Búsqueda finalizada.");
-    return null;
+
+    // Retornar la respuesta completa después de procesar todas las páginas
+    if (response.month != null || response.totalAmount != null) {
+      return response;
+    } else {
+      return null; // Si no se encontraron valores relevantes, retornar null
+    }
   }
 }
 
@@ -55,4 +71,16 @@ class ResponsePdfReader {
     this.month,
     this.totalAmount,
   });
+
+  ResponsePdfReader copyWith({
+    String? scannedText,
+    String? month,
+    String? totalAmount,
+  }) {
+    return ResponsePdfReader(
+      scannedText: scannedText ?? this.scannedText,
+      month: month ?? this.month,
+      totalAmount: totalAmount ?? this.totalAmount,
+    );
+  }
 }

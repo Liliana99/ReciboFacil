@@ -41,7 +41,7 @@ class _HomePageReaderState extends State<HomePageReader> {
   late Timer timer;
   DateTime currentTime = DateTime.now();
 
-  final homeCubit = getIt<HomeCubit>();
+  bool isSeraching = false;
 
   Future<void> _loadPdf(final String pdfPath) async {
     final docRef = await PdfDocumentRefFile(pdfPath);
@@ -69,6 +69,10 @@ class _HomePageReaderState extends State<HomePageReader> {
 
     print("PDF cargado con ${document.pages.length} páginas.");
   }
+
+  void updateIsSeraching() => setState(() {
+        isSeraching = !isSeraching;
+      });
 
   Future<void> _performOCR(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
@@ -120,9 +124,6 @@ class _HomePageReaderState extends State<HomePageReader> {
         _selectedImage = File(image.path);
       });
       await _performOCR(_selectedImage!);
-      // Navigator.of(context).push(MaterialPageRoute(
-      //   builder: (context) => PdfSearchPage(pdfPath: image.path),
-      // ));
     }
   }
 
@@ -155,14 +156,25 @@ class _HomePageReaderState extends State<HomePageReader> {
       maxLines: maxLines,
       textDirection: TextDirection.ltr,
     );
+
+    // Realiza el layout para obtener la información de tamaño.
     textPainter.layout(maxWidth: maxWidth);
-    print('excede? ${textPainter.didExceedMaxLines}');
-    return textPainter.didExceedMaxLines;
+
+    // Obtener la altura de una sola línea.
+    final lineHeight = textPainter.preferredLineHeight;
+
+    // Calcula cuántas líneas ocupa el texto con la altura total.
+    final numLines = (textPainter.height / lineHeight).ceil();
+
+    print(
+        'Altura del texto: ${textPainter.height}, Altura de una línea: $lineHeight, Número de líneas: $numLines  numLines > maxLines ${numLines > 1}');
+
+    // Verifica si el número de líneas excede el límite máximo.
+    return numLines > 1;
   }
 
   Future<void> selectAndOpenPdf(
-    BuildContext context,
-  ) async {
+      BuildContext context, HomeCubit homeCubit) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -172,9 +184,6 @@ class _HomePageReaderState extends State<HomePageReader> {
       String? pdfPath = result.files.single.path;
       String query = "a pagar";
       homeCubit.updateIsScanning();
-      setState(() {
-        isScanned = true;
-      });
 
       if (pdfPath != null) {
         await _loadPdf(pdfPath);
@@ -182,7 +191,8 @@ class _HomePageReaderState extends State<HomePageReader> {
           if (i == 1) {
             query = "Periodo de facturación";
           }
-          if (mounted) {
+          if (mounted && !isSeraching) {
+            updateIsSeraching();
             await homeCubit.searchPdf(document, query);
           }
         }
@@ -219,13 +229,6 @@ class _HomePageReaderState extends State<HomePageReader> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    final isMultiline = _isMultiline(
-      month,
-      TextStyle(fontSize: 6, color: Colors.blue),
-      30,
-      3,
-    );
-
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
@@ -240,40 +243,37 @@ class _HomePageReaderState extends State<HomePageReader> {
             ),
           ),
         ),
-        body: BlocListener<HomeCubit, HomeStateCubit>(
-          listener: (context, state) {
-            if (state.scannedText != null &&
-                state.totalAmount != null &&
-                state.month != null) {
-              print(
-                  'Datos actualizados: ${state.scannedText}, ${state.totalAmount}, ${state.month}');
-            }
-          },
+        body: BlocProvider(
+          create: (context) => getIt<HomeCubit>(),
           child: BlocBuilder<HomeCubit, HomeStateCubit>(
             builder: (context, state) {
-              print('state is scanning? ${state.isScanning}');
+              final isMultiline = _isMultiline(
+                state.month ?? '',
+                TextStyle(fontSize: 6, color: Colors.blue),
+                size.width * 0.01,
+                2,
+              );
 
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: ListView(
                     children: [
-                      10.ht,
                       if (state.isScanning!)
                         ShimmerHomePage(isScanned: isScanned, size: size),
-                      if (state.scannedText != null &&
-                          state.totalAmount != null &&
-                          state.month != null)
+                      if (state.scannedText != null ||
+                          state.totalAmount != null ||
+                          state.month != null && !state.isScanning!)
                         Padding(
-                          padding: const EdgeInsets.only(top: 80),
-                          child: Stack(
-                            children: [
-                              Clock12Hour(),
-                            ],
+                          padding: const EdgeInsets.only(top: 30),
+                          child: Clock12Hour(
+                            size: isMultiline
+                                ? size.height * 0.30
+                                : size.height * 0.50,
                           ),
                         ),
-                      if (state.scannedText != null &&
-                          state.totalAmount != null &&
+                      if (state.scannedText != null ||
+                          state.totalAmount != null ||
                           state.month != null)
                         Padding(
                           padding: const EdgeInsets.only(top: 40),
@@ -328,8 +328,9 @@ class _HomePageReaderState extends State<HomePageReader> {
                               ),
                               50.ht,
                               CustomButton(
-                                onPressed: () {
-                                  selectAndOpenPdf(context);
+                                onPressed: () async {
+                                  final homeCubit = context.read<HomeCubit>();
+                                  await selectAndOpenPdf(context, homeCubit);
                                 },
                                 text: 'Seleccionar PDF',
                                 iconPath: 'assets/iconos/pdf.png',
@@ -364,28 +365,21 @@ class InfoCard extends StatelessWidget {
   final String label;
   final String value;
   final Color color;
+  final Size size;
+  final bool isMultiline;
 
   InfoCard(
       {required this.icon,
       required this.label,
       required this.value,
-      required this.color});
-
-  bool _isMultiline(
-      String text, TextStyle style, double maxWidth, int maxLines) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: text, style: style),
-      maxLines: maxLines,
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: maxWidth);
-    print('excede? ${textPainter.didExceedMaxLines}');
-    return textPainter.didExceedMaxLines;
-  }
+      required this.color,
+      required this.size,
+      required this.isMultiline});
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: size.width * 0.01,
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -400,13 +394,11 @@ class InfoCard extends StatelessWidget {
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
           Wrap(
             children: [
-              Text(value,
-                  textAlign: TextAlign.left,
-                  maxLines: _isMultiline(
-                          value, TextStyle(fontSize: 6, color: color), 30, 3)
-                      ? 4
-                      : 2,
-                  style: TextStyle(fontSize: 18, color: color)),
+              Text(
+                value,
+                textAlign: TextAlign.left,
+                style: TextStyle(fontSize: isMultiline ? 14 : 18, color: color),
+              ),
             ],
           ),
         ],

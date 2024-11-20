@@ -22,12 +22,14 @@ class InfoCardContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: size.width * 0.40,
-      height: isMultiline ? size.height * 0.30 : size.height * 0.20,
+      height: isMultiline ? size.height * 0.20 : size.height * 0.15,
       child: InfoCard(
         icon: icon,
         label: label,
         value: value,
         color: color,
+        size: size,
+        isMultiline: isMultiline,
       ),
     );
   }

@@ -1032,11 +1032,14 @@ class ClockPainter12Hours extends CustomPainter {
 }
 
 class Clock12Hour extends StatelessWidget {
+  final double size;
+
+  const Clock12Hour({super.key, required this.size});
   @override
   Widget build(BuildContext context) {
     return Center(
       child: CustomPaint(
-        size: const Size(300, 300), // Tamaño del reloj
+        size: Size(size, size), // Tamaño del reloj
         painter: ClockPainter12Hours(currentTime: DateTime.now()),
       ),
     );
