@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/assets_constants.dart';
+import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/home/widgets/image_with_overlay.dart';
 
 class EnergySegmentAdvice extends StatelessWidget {
   final DateTime currentTime;
   final TextStyle parenthesisStyle;
+  final Color? generalColorStyle;
   final DateTime updatedTime;
   final List<Widget> peakWidgets;
 
@@ -13,6 +15,7 @@ class EnergySegmentAdvice extends StatelessWidget {
     required this.parenthesisStyle,
     required this.updatedTime,
     required this.peakWidgets,
+    this.generalColorStyle,
   });
 
   @override
@@ -24,51 +27,83 @@ class EnergySegmentAdvice extends StatelessWidget {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              style: TextStyle(fontSize: 16, color: Colors.black),
-              children: [
-                TextSpan(
-                  text: "Estamos en el segmento : ",
-                ),
-                TextSpan(
-                  text: "${currentSegment["name"]}. ",
-                  style: parenthesisStyle,
-                ),
-                TextSpan(
-                  text: "\n\n",
-                ),
-                TextSpan(
-                  text: "${currentSegment["tip"]}",
-                ),
-              ],
+          50.ht,
+          Expanded(
+            flex: 2,
+            child: RichText(
+              textAlign: TextAlign.center,
+              text: TextSpan(
+                style: TextStyle(
+                    fontSize: 22, color: generalColorStyle ?? Colors.black),
+                children: [
+                  TextSpan(
+                    text: "Estamos en el segmento  ",
+                  ),
+                  TextSpan(
+                    text: "\n\n",
+                  ),
+                  TextSpan(
+                    text: "${currentSegment["name"]}. ",
+                    style: parenthesisStyle,
+                  ),
+                  TextSpan(
+                    text: "\n\n",
+                  ),
+                  WidgetSpan(
+                      child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Text(
+                      currentSegment["tip"] ?? "",
+                      style: TextStyle(
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  )),
+                  TextSpan(
+                    text: "\n",
+                  ),
+                ],
+              ),
             ),
           ),
-          SizedBox(height: 20),
+
           // Mostrar imágenes dinámicas basadas en el segmento actual
           if (currentSegment["name"] != 'Horas Punta')
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: (currentSegment["images"] as List<dynamic>)
-                  .cast<String>() // Realizamos el cast explícito a List<String>
-                  .map((imagePath) {
-                return Image.asset(
-                  imagePath,
-                  width: 35,
-                  height: 35,
-                  fit: BoxFit.contain,
-                );
-              }).toList(),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: (currentSegment["images"] as List<dynamic>)
+                      .cast<
+                          String>() // Realizamos el cast explícito a List<String>
+                      .map((imagePath) {
+                    return Image.asset(
+                      imagePath,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.contain,
+                    );
+                  }).toList(),
+                ),
+              ),
             ),
           if (currentSegment["name"] == 'Horas Punta')
-            Wrap(
-              spacing: 16,
-              runSpacing: 16,
-              children: peakWidgets,
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: peakWidgets,
+                ),
+              ),
             ),
+          Spacer(),
         ],
       ),
     );
@@ -154,8 +189,12 @@ bool isTimeInRanges(TimeOfDay current, List<Map<String, TimeOfDay>> periods) {
 Map<String, dynamic> getCurrentSegment(final DateTime currentTime) {
   final current = timeToTimeOfDay(currentTime);
 
-  // Si es domingo, todo es "Horas Valle"
-  if (currentTime.weekday == DateTime.sunday) {
+  // Obtener la lista de días festivos para el año actual
+  final holidays = getHolidaysForCurrentYear(currentTime.year);
+
+  // Si es domingo o festivo, todo es "Horas Valle"
+  if (currentTime.weekday == DateTime.sunday ||
+      isHoliday(currentTime, holidays)) {
     return {
       "name": "Horas Valle",
       "range": "Todo el día",
@@ -184,6 +223,22 @@ Map<String, dynamic> getCurrentSegment(final DateTime currentTime) {
     "tip": "No hay información disponible para este horario.",
     "images": []
   };
+}
+
+// Obtener la lista de días festivos dinámicamente según el año en curso
+List<DateTime> getHolidaysForCurrentYear(int year) {
+  return [
+    DateTime(year, 1, 1), // Año Nuevo
+    DateTime(year, 12, 25), // Navidad
+    DateTime(year, 5, 1), // Día del Trabajador
+    DateTime(year, 8, 15), // Asunción de la Virgen
+  ];
+}
+
+// Verificar si la fecha es un día festivo
+bool isHoliday(DateTime currentDate, List<DateTime> holidays) {
+  return holidays.any((holiday) =>
+      holiday.month == currentDate.month && holiday.day == currentDate.day);
 }
 
 // Helper: Convertir DateTime a TimeOfDay

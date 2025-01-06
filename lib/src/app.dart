@@ -3,8 +3,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
-import 'package:recibo_facil/src/home/pages/home_page_animation.dart';
-import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
+import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
+import 'package:recibo_facil/src/reader/reader_page/pages/reader_page.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 
@@ -69,6 +69,7 @@ class MyApp extends StatelessWidget {
           ),
           darkTheme: ThemeData(
             useMaterial3: true,
+            scaffoldBackgroundColor: ColorsApp.scaffoldBackgroundColor,
             colorScheme: ColorScheme.fromSeed(
               seedColor: ColorsApp.baseColorApp,
               brightness: Brightness.dark,
@@ -87,9 +88,9 @@ class MyApp extends StatelessWidget {
                     return SettingsView(
                       controller: settingsController,
                     );
-                  case HomePageReader.routeName:
+                  case HomePage.routeNameGrafic:
                   default:
-                    return HomePageAnimation();
+                    return ReaderPage();
                 }
               },
             );

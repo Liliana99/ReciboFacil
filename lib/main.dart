@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get_it/get_it.dart';
 import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
 import 'package:recibo_facil/src/services/service_locator.dart';
 
 import 'src/app.dart';
-import 'src/home/repositories/pdf_repository.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 

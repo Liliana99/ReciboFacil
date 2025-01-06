@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recibo_facil/const/colors_constants.dart';
 
 class CustomButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -12,9 +13,9 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     required this.text,
     required this.iconPath,
-    this.backgroundColor = const Color(0xFF81D4FA), // Default light blue
+    this.backgroundColor = ColorsApp.baseColorApp, // Default light blue
     this.iconColor = Colors.white,
-    this.textColor = Colors.black,
+    this.textColor = Colors.white,
   });
 
   @override

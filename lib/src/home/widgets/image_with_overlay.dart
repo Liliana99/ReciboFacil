@@ -22,13 +22,19 @@ class ImageWithRedOverlay extends StatelessWidget {
           height: 35,
           fit: BoxFit.contain,
         ),
+        Icon(
+          Icons.close_outlined,
+          color: Colors.white,
+          size: 30,
+        )
         // Imagen de la "X" roja
-        Image.asset(
-          overlayImagePath,
-          width: 20, // Ajusta el tamaño de la "X"
-          height: 20,
-          fit: BoxFit.contain,
-        ),
+        // Image.asset(
+        //   overlayImagePath,
+        //   width: 20, // Ajusta el tamaño de la "X"
+        //   height: 20,
+        //   color: Colors.white,
+        //   fit: BoxFit.contain,
+        // ),
       ],
     );
   }

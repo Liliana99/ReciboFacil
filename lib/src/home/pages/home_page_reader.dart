@@ -14,11 +14,12 @@ import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
 import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/home/utils/recognized_text.dart';
 import 'package:recibo_facil/src/home/widgets/custom_buttom_loader.dart';
-import 'package:recibo_facil/src/home/widgets/graphic.dart';
-import 'package:recibo_facil/src/home/widgets/info_card_container.dart';
-import 'package:recibo_facil/src/home/widgets/shimmer_home.dart';
-import 'package:recibo_facil/src/home/widgets/title_home.dart';
 
+import 'package:recibo_facil/src/home/widgets/info_card_container.dart';
+import 'package:recibo_facil/src/home/widgets/responsive_page.dart';
+import 'package:recibo_facil/src/home/widgets/shimmer_home.dart';
+
+import '../../../const/colors_constants.dart';
 import '../../services/service_locator.dart';
 
 class HomePageReader extends StatefulWidget {
@@ -166,15 +167,13 @@ class _HomePageReaderState extends State<HomePageReader> {
     // Calcula cuántas líneas ocupa el texto con la altura total.
     final numLines = (textPainter.height / lineHeight).ceil();
 
-    print(
-        'Altura del texto: ${textPainter.height}, Altura de una línea: $lineHeight, Número de líneas: $numLines  numLines > maxLines ${numLines > 1}');
-
     // Verifica si el número de líneas excede el límite máximo.
     return numLines > 1;
   }
 
   Future<void> selectAndOpenPdf(
       BuildContext context, HomeCubit homeCubit) async {
+    // Seleccionar el archivo PDF
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['pdf'],
@@ -182,26 +181,25 @@ class _HomePageReaderState extends State<HomePageReader> {
 
     if (result != null) {
       String? pdfPath = result.files.single.path;
-      String query = "a pagar";
-      homeCubit.updateIsScanning();
 
       if (pdfPath != null) {
+        // Actualizar el estado de escaneo a activo
+        homeCubit.updateIsScanning(true);
+
+        // Cargar el documento PDF
         await _loadPdf(pdfPath);
-        for (int i = 0; i < 2; i++) {
-          if (i == 1) {
-            query = "Periodo de facturación";
-          }
-          if (mounted && !isSeraching) {
-            updateIsSeraching();
-            await homeCubit.searchPdf(document, query);
-          }
+
+        if (mounted) {
+          // Ejecutar búsqueda de términos en el documento
+          await homeCubit
+              .searchPdf(document, ["a pagar", "Periodo de facturación"]);
+
+          // Actualizar el estado para indicar que el escaneo ha terminado
+          homeCubit.updateIsScanning(false);
         }
-        setState(() {
-          isScanned = false;
-        });
       }
     } else {
-      // Usuario canceló la selección
+      // Usuario canceló la selección de archivo
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Selección de archivo cancelada')),
       );
@@ -229,131 +227,138 @@ class _HomePageReaderState extends State<HomePageReader> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: ReaderHomeTitle(),
-          leading: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Icon(
-                Icons.arrow_back_ios,
-              ),
+    return ResponsiveHomePage(
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+          icon: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(
+              Icons.arrow_back_ios,
             ),
           ),
         ),
-        body: BlocProvider(
-          create: (context) => getIt<HomeCubit>(),
-          child: BlocBuilder<HomeCubit, HomeStateCubit>(
-            builder: (context, state) {
-              final isMultiline = _isMultiline(
-                state.month ?? '',
-                TextStyle(fontSize: 6, color: Colors.blue),
-                size.width * 0.01,
-                2,
-              );
+      ),
+      body: BlocProvider(
+        create: (context) => getIt<HomeCubit>(),
+        child: BlocBuilder<HomeCubit, HomeStateCubit>(
+          builder: (context, state) {
+            final isMultiline = _isMultiline(
+              state.month ?? '',
+              TextStyle(fontSize: 6, color: Colors.blue),
+              size.width * 0.01,
+              2,
+            );
 
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: ListView(
+            return ListView(
+              children: [
+                if (state.isScanning!)
+                  ShimmerReaderHomePage(isScanned: isScanned, size: size),
+                if (state.scannedText != null ||
+                    state.totalAmount != null ||
+                    state.month != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        InfoCardContainer(
+                          size: size,
+                          isMultiline: isMultiline,
+                          icon: Icon(
+                            Icons.euro,
+                            size: 40,
+                            color: Colors.blue,
+                          ),
+                          label: 'Total a Pagar',
+                          value: state.totalAmount ?? '',
+                          color: ColorsApp.baseColorApp,
+                        ),
+                        InfoCardContainer(
+                          size: size,
+                          isMultiline: isMultiline,
+                          icon: Image.asset(
+                            'assets/iconos/calendar.png',
+                            width: 30,
+                            height: 30,
+                            color: Colors.blue,
+                          ),
+                          label: 'Mes Facturado',
+                          value: state.month ?? '',
+                          color: ColorsApp.baseColorApp,
+                        ),
+                      ],
+                    ),
+                  ),
+                if (state.scannedText == null && !state.isScanning!)
+                  Column(
                     children: [
-                      if (state.isScanning!)
-                        ShimmerHomePage(isScanned: isScanned, size: size),
-                      if (state.scannedText != null ||
-                          state.totalAmount != null ||
-                          state.month != null && !state.isScanning!)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 30),
-                          child: Clock12Hour(
-                            size: isMultiline
-                                ? size.height * 0.30
-                                : size.height * 0.50,
-                          ),
-                        ),
-                      if (state.scannedText != null ||
-                          state.totalAmount != null ||
-                          state.month != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              InfoCardContainer(
-                                size: size,
-                                isMultiline: isMultiline,
+                      InfoCard2(
+                        onPressed: () {},
+                        width: size.width * 0.95,
+                        child: Row(
+                          children: [
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: SizedBox(
+                                height: size.height * 0.035,
+                                child: Image.asset(
+                                  'assets/iconos/gallery.png',
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: size.width * 0.05,
+                            ),
+                            Text(
+                              'Seleccionar desde Galería',
+                              textAlign: TextAlign.center,
+                              maxLines: 2,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                            IconButton(
+                                onPressed: () {},
                                 icon: Icon(
-                                  Icons.euro,
-                                  size: 40,
-                                  color: Colors.blue,
-                                ),
-                                label: 'Total a Pagar',
-                                value: state.totalAmount ?? '',
-                                color: Colors.blue,
-                              ),
-                              InfoCardContainer(
-                                size: size,
-                                isMultiline: isMultiline,
-                                icon: Image.asset(
-                                  'assets/iconos/calendar.png',
-                                  width: 30,
-                                  height: 30,
-                                  color: Colors.blue,
-                                ),
-                                label: 'Mes Facturado',
-                                value: state.month ?? '',
-                                color: Colors.blue,
-                              ),
-                            ],
-                          ),
+                                  Icons.arrow_forward_ios_outlined,
+                                  color: Colors.black54,
+                                )),
+                          ],
                         ),
-                      20.ht,
-                      if (state.scannedText == null && !state.isScanning!)
-                        SizedBox(
-                          height: MediaQuery.of(context).size.height,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              CustomButton(
-                                onPressed: _selectFromGallery,
-                                text: 'Seleccionar desde Galería',
-                                iconPath: 'assets/iconos/gallery.png',
-                              ),
-                              50.ht,
-                              CustomButton(
-                                onPressed: _takePhoto,
-                                text: 'Escanear factura',
-                                iconPath: 'assets/iconos/camera.png',
-                              ),
-                              50.ht,
-                              CustomButton(
-                                onPressed: () async {
-                                  final homeCubit = context.read<HomeCubit>();
-                                  await selectAndOpenPdf(context, homeCubit);
-                                },
-                                text: 'Seleccionar PDF',
-                                iconPath: 'assets/iconos/pdf.png',
-                                iconColor: Colors
-                                    .red, // Cambiar el color del icono para este botón
-                              ),
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.30,
-                              ),
-                            ],
-                          ),
-                        ),
-                      if (state.isScanning!)
-                        SizedBox(
-                          height: 200,
-                        ),
+                      ),
+                      50.ht,
+                      CustomButton(
+                        onPressed: _selectFromGallery,
+                        text: 'Seleccionar desde Galería',
+                        iconPath: 'assets/iconos/gallery.png',
+                      ),
+                      50.ht,
+                      CustomButton(
+                        onPressed: _takePhoto,
+                        text: 'Escanear factura',
+                        iconPath: 'assets/iconos/camera.png',
+                      ),
+                      50.ht,
+                      CustomButton(
+                        onPressed: () async {
+                          final homeCubit = context.read<HomeCubit>();
+                          await selectAndOpenPdf(context, homeCubit);
+                        },
+                        text: 'Seleccionar PDF',
+                        iconPath: 'assets/iconos/pdf.png',
+                        iconColor: Colors
+                            .red, // Cambiar el color del icono para este botón
+                      ),
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.30,
+                      ),
                     ],
                   ),
-                ),
-              );
-            },
-          ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -397,7 +402,10 @@ class InfoCard extends StatelessWidget {
               Text(
                 value,
                 textAlign: TextAlign.left,
-                style: TextStyle(fontSize: isMultiline ? 14 : 18, color: color),
+                style: TextStyle(
+                    fontSize: isMultiline ? 12 : 14,
+                    color: color,
+                    fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -471,6 +479,35 @@ class AnalogClock extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class InfoCard2 extends StatelessWidget {
+  final Widget child;
+  final double? width;
+  final double? height;
+  final VoidCallback onPressed;
+  const InfoCard2(
+      {super.key,
+      required this.child,
+      required this.width,
+      this.height,
+      required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+          width: width,
+          height: height,
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: child),
     );
   }
 }

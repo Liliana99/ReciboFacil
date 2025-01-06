@@ -11,15 +11,33 @@ abstract class _$HomeStateCubitCWProxy {
 
   HomeStateCubit totalAmount(String? totalAmount);
 
-  HomeStateCubit peak(String? peak);
+  HomeStateCubit peak(Decimal? peak);
 
-  HomeStateCubit plain(String? plain);
+  HomeStateCubit plain(Decimal? plain);
 
-  HomeStateCubit valley(String? valley);
+  HomeStateCubit valley(Decimal? valley);
 
   HomeStateCubit scannedText(String? scannedText);
 
   HomeStateCubit isScanning(bool? isScanning);
+
+  HomeStateCubit errorMessage(String? errorMessage);
+
+  HomeStateCubit progressMessage(String? progressMessage);
+
+  HomeStateCubit isFromGallery(bool? isFromGallery);
+
+  HomeStateCubit isFromCamera(bool? isFromCamera);
+
+  HomeStateCubit company(String? company);
+
+  HomeStateCubit billNumber(String? billNumber);
+
+  HomeStateCubit cups(String? cups);
+
+  HomeStateCubit contract(String? contract);
+
+  HomeStateCubit file(File? file);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HomeStateCubit(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -30,11 +48,20 @@ abstract class _$HomeStateCubitCWProxy {
   HomeStateCubit call({
     String? month,
     String? totalAmount,
-    String? peak,
-    String? plain,
-    String? valley,
+    Decimal? peak,
+    Decimal? plain,
+    Decimal? valley,
     String? scannedText,
     bool? isScanning,
+    String? errorMessage,
+    String? progressMessage,
+    bool? isFromGallery,
+    bool? isFromCamera,
+    String? company,
+    String? billNumber,
+    String? cups,
+    String? contract,
+    File? file,
   });
 }
 
@@ -52,13 +79,13 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
       this(totalAmount: totalAmount);
 
   @override
-  HomeStateCubit peak(String? peak) => this(peak: peak);
+  HomeStateCubit peak(Decimal? peak) => this(peak: peak);
 
   @override
-  HomeStateCubit plain(String? plain) => this(plain: plain);
+  HomeStateCubit plain(Decimal? plain) => this(plain: plain);
 
   @override
-  HomeStateCubit valley(String? valley) => this(valley: valley);
+  HomeStateCubit valley(Decimal? valley) => this(valley: valley);
 
   @override
   HomeStateCubit scannedText(String? scannedText) =>
@@ -66,6 +93,37 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
 
   @override
   HomeStateCubit isScanning(bool? isScanning) => this(isScanning: isScanning);
+
+  @override
+  HomeStateCubit errorMessage(String? errorMessage) =>
+      this(errorMessage: errorMessage);
+
+  @override
+  HomeStateCubit progressMessage(String? progressMessage) =>
+      this(progressMessage: progressMessage);
+
+  @override
+  HomeStateCubit isFromGallery(bool? isFromGallery) =>
+      this(isFromGallery: isFromGallery);
+
+  @override
+  HomeStateCubit isFromCamera(bool? isFromCamera) =>
+      this(isFromCamera: isFromCamera);
+
+  @override
+  HomeStateCubit company(String? company) => this(company: company);
+
+  @override
+  HomeStateCubit billNumber(String? billNumber) => this(billNumber: billNumber);
+
+  @override
+  HomeStateCubit cups(String? cups) => this(cups: cups);
+
+  @override
+  HomeStateCubit contract(String? contract) => this(contract: contract);
+
+  @override
+  HomeStateCubit file(File? file) => this(file: file);
 
   @override
 
@@ -83,6 +141,15 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
     Object? valley = const $CopyWithPlaceholder(),
     Object? scannedText = const $CopyWithPlaceholder(),
     Object? isScanning = const $CopyWithPlaceholder(),
+    Object? errorMessage = const $CopyWithPlaceholder(),
+    Object? progressMessage = const $CopyWithPlaceholder(),
+    Object? isFromGallery = const $CopyWithPlaceholder(),
+    Object? isFromCamera = const $CopyWithPlaceholder(),
+    Object? company = const $CopyWithPlaceholder(),
+    Object? billNumber = const $CopyWithPlaceholder(),
+    Object? cups = const $CopyWithPlaceholder(),
+    Object? contract = const $CopyWithPlaceholder(),
+    Object? file = const $CopyWithPlaceholder(),
   }) {
     return HomeStateCubit(
       month: month == const $CopyWithPlaceholder()
@@ -96,15 +163,15 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
       peak: peak == const $CopyWithPlaceholder()
           ? _value.peak
           // ignore: cast_nullable_to_non_nullable
-          : peak as String?,
+          : peak as Decimal?,
       plain: plain == const $CopyWithPlaceholder()
           ? _value.plain
           // ignore: cast_nullable_to_non_nullable
-          : plain as String?,
+          : plain as Decimal?,
       valley: valley == const $CopyWithPlaceholder()
           ? _value.valley
           // ignore: cast_nullable_to_non_nullable
-          : valley as String?,
+          : valley as Decimal?,
       scannedText: scannedText == const $CopyWithPlaceholder()
           ? _value.scannedText
           // ignore: cast_nullable_to_non_nullable
@@ -113,6 +180,42 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
           ? _value.isScanning
           // ignore: cast_nullable_to_non_nullable
           : isScanning as bool?,
+      errorMessage: errorMessage == const $CopyWithPlaceholder()
+          ? _value.errorMessage
+          // ignore: cast_nullable_to_non_nullable
+          : errorMessage as String?,
+      progressMessage: progressMessage == const $CopyWithPlaceholder()
+          ? _value.progressMessage
+          // ignore: cast_nullable_to_non_nullable
+          : progressMessage as String?,
+      isFromGallery: isFromGallery == const $CopyWithPlaceholder()
+          ? _value.isFromGallery
+          // ignore: cast_nullable_to_non_nullable
+          : isFromGallery as bool?,
+      isFromCamera: isFromCamera == const $CopyWithPlaceholder()
+          ? _value.isFromCamera
+          // ignore: cast_nullable_to_non_nullable
+          : isFromCamera as bool?,
+      company: company == const $CopyWithPlaceholder()
+          ? _value.company
+          // ignore: cast_nullable_to_non_nullable
+          : company as String?,
+      billNumber: billNumber == const $CopyWithPlaceholder()
+          ? _value.billNumber
+          // ignore: cast_nullable_to_non_nullable
+          : billNumber as String?,
+      cups: cups == const $CopyWithPlaceholder()
+          ? _value.cups
+          // ignore: cast_nullable_to_non_nullable
+          : cups as String?,
+      contract: contract == const $CopyWithPlaceholder()
+          ? _value.contract
+          // ignore: cast_nullable_to_non_nullable
+          : contract as String?,
+      file: file == const $CopyWithPlaceholder()
+          ? _value.file
+          // ignore: cast_nullable_to_non_nullable
+          : file as File?,
     );
   }
 }

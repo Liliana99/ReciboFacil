@@ -12,4 +12,6 @@ class Assets {
   static const String microWave = '$iconPath/microwave-oven.png';
   static const String vacuumCleaner = '$iconPath/vacuum.png';
   static const String airConditioner = '$iconPath/airConditioner.png';
+  static const String recepit = '$iconPath/receipt.png';
+  static const String calender = '$iconPath/calender.png';
 }
