@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
+import 'package:recibo_facil/src/home/pages/home_page_animation.dart';
+
 import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/reader/reader_page/widgets/body_reader.dart';
 import 'package:shimmer/shimmer.dart';
 
-import '../../../services/service_locator.dart';
-import '../../../home/blocs/home_cubit.dart';
-import '../../../home/blocs/home_state_cubit.dart';
+import '../../../core/services/service_locator.dart';
+import '../../../features/home/presentation/blocs/home_cubit.dart';
+import '../../../features/home/presentation/blocs/home_state_cubit.dart';
 
 class ReaderPage extends StatelessWidget {
   const ReaderPage({super.key});
@@ -16,7 +17,8 @@ class ReaderPage extends StatelessWidget {
     Navigator.push(
       context,
       PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => HomePage(),
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            HomePageAnimation(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           const begin = Offset(-1.0, 0.0);
           const end = Offset.zero;
@@ -40,112 +42,110 @@ class ReaderPage extends StatelessWidget {
     Size size = MediaQuery.of(context).size;
     bool isScanned = false;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: BlocProvider(
-        create: (context) => getIt<HomeCubit>(),
-        child:
-            BlocBuilder<HomeCubit, HomeStateCubit>(builder: (context, state) {
-          if (state.isScanning!) {
-            return Padding(
-              padding: const EdgeInsets.only(
-                  top: 24, bottom: 24, left: 24, right: 24),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: size.height * 0.50,
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey[400]!,
-                      highlightColor: Colors.grey[200]!,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(
-                              50), // Bordes redondeados como el botón original
-                        ),
-                        alignment: Alignment.center, // Centrar el texto
-                        child: SizedBox(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey[400]!,
-                            highlightColor: Colors.grey[200]!,
-                            child: Text(
-                              'Cargando...',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.bold,
-                              ),
+    return BlocProvider(
+      create: (context) => getIt<HomeCubit>(),
+      child: BlocBuilder<HomeCubit, HomeStateCubit>(builder: (context, state) {
+        if (state.isScanning!) {
+          return Padding(
+            padding:
+                const EdgeInsets.only(top: 24, bottom: 24, left: 24, right: 24),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: size.height * 0.50,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(
+                            50), // Bordes redondeados como el botón original
+                      ),
+                      alignment: Alignment.center, // Centrar el texto
+                      child: SizedBox(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Text(
+                            'Cargando...',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  24.ht,
-                  SizedBox(
-                    height: size.height * 0.15,
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey[400]!,
-                      highlightColor: Colors.grey[200]!,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(
-                              30), // Bordes redondeados como el botón original
-                        ),
-                        alignment: Alignment.center, // Centrar el texto
-                        child: SizedBox(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey[400]!,
-                            highlightColor: Colors.grey[200]!,
-                            child: Text(
-                              'Cargando...',
-                              style: TextStyle(
-                                color: Colors.grey[600],
-                                fontWeight: FontWeight.bold,
-                              ),
+                ),
+                24.ht,
+                SizedBox(
+                  height: size.height * 0.15,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(
+                            30), // Bordes redondeados como el botón original
+                      ),
+                      alignment: Alignment.center, // Centrar el texto
+                      child: SizedBox(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Text(
+                            'Cargando...',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  12.ht,
-                  SizedBox(
-                    height: size.height * 0.15,
-                    child: Shimmer.fromColors(
-                      baseColor: Colors.grey[400]!,
-                      highlightColor: Colors.grey[200]!,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          borderRadius: BorderRadius.circular(
-                              30), // Bordes redondeados como el botón original
-                        ),
-                        alignment: Alignment.center, // Centrar el texto
-                        child: SizedBox(
-                          child: Shimmer.fromColors(
-                            baseColor: Colors.grey[400]!,
-                            highlightColor: Colors.grey[200]!,
-                            child: Text(
-                              'Cargando...',
-                              style: TextStyle(
-                                color: const Color.fromARGB(255, 8, 8, 8),
-                                fontWeight: FontWeight.bold,
-                              ),
+                ),
+                12.ht,
+                SizedBox(
+                  height: size.height * 0.15,
+                  child: Shimmer.fromColors(
+                    baseColor: Colors.grey[400]!,
+                    highlightColor: Colors.grey[200]!,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[400],
+                        borderRadius: BorderRadius.circular(
+                            30), // Bordes redondeados como el botón original
+                      ),
+                      alignment: Alignment.center, // Centrar el texto
+                      child: SizedBox(
+                        child: Shimmer.fromColors(
+                          baseColor: Colors.grey[400]!,
+                          highlightColor: Colors.grey[200]!,
+                          child: Text(
+                            'Cargando...',
+                            style: TextStyle(
+                              color: const Color.fromARGB(255, 8, 8, 8),
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            );
-          }
+                ),
+              ],
+            ),
+          );
+        }
 
-          return ReaderBody(size: size, back: () => back(context));
-        }),
-      ),
+        return ReaderBody(
+          size: size,
+        );
+      }),
     );
   }
 }
@@ -168,18 +168,17 @@ class CardChild extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SizedBox(
+          child: Column(
+            children: [
+              SizedBox(
                 height: size.height * 0.035,
                 child: Image.asset(
                   iconPath,
                   color: Colors.black54,
                 ),
               ),
-            ),
+              Spacer(flex: 2),
+            ],
           ),
         ),
         Expanded(

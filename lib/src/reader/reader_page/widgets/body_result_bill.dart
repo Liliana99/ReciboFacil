@@ -3,8 +3,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/assets_constants.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
-import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
-import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
+
 import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/reader/reader_page/widgets/container_decoration.dart';
 import 'package:recibo_facil/src/reader/reader_page/widgets/pdf_carrusel.dart';

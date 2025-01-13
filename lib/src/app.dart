@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
-import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
-import 'package:recibo_facil/src/reader/reader_page/pages/reader_page.dart';
+import 'package:recibo_facil/src/features/home/presentation/routes/app_router.dart';
+
 import 'settings/settings_controller.dart';
-import 'settings/settings_view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -19,14 +17,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Glue the SettingsController to the MaterialApp.
-    //
-    // The ListenableBuilder Widget listens to the SettingsController for changes.
-    // Whenever the user updates their settings, the MaterialApp is rebuilt.
     return ListenableBuilder(
       listenable: settingsController,
       builder: (BuildContext context, Widget? child) {
-        return MaterialApp(
+        return MaterialApp.router(
+          routerConfig: AppRouter.router,
           debugShowCheckedModeBanner: false,
           // Providing a restorationScopeId allows the Navigator built by the
           // MaterialApp to restore the navigation stack when a user leaves and
@@ -63,10 +58,12 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             colorScheme:
                 ColorScheme.fromSeed(seedColor: ColorsApp.baseColorApp),
-            textTheme: GoogleFonts.ralewayTextTheme(
-              Theme.of(context).textTheme,
-            ),
+            textTheme: Typography.material2021().black.apply(
+                  fontFamily:
+                      'Raleway', // Usa la fuente local registrada en pubspec.yaml
+                ),
           ),
+
           darkTheme: ThemeData(
             useMaterial3: true,
             scaffoldBackgroundColor: ColorsApp.scaffoldBackgroundColor,
@@ -79,22 +76,6 @@ class MyApp extends StatelessWidget {
           themeMode: ThemeMode.light,
           // Define a function to handle named routes in order to support
           // Flutter web url navigation and deep linking.
-          onGenerateRoute: (RouteSettings routeSettings) {
-            return MaterialPageRoute<void>(
-              settings: routeSettings,
-              builder: (BuildContext context) {
-                switch (routeSettings.name) {
-                  case SettingsView.routeName:
-                    return SettingsView(
-                      controller: settingsController,
-                    );
-                  case HomePage.routeNameGrafic:
-                  default:
-                    return ReaderPage();
-                }
-              },
-            );
-          },
         );
       },
     );

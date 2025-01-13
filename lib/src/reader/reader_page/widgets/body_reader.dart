@@ -4,15 +4,17 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
-import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
-import 'package:recibo_facil/src/reader/reader_page/widgets/body_reader_initial.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/home/widgets/body_reader_initial.dart';
 import 'package:recibo_facil/src/reader/reader_page/widgets/body_result_bill.dart';
 
 class ReaderBody extends StatefulWidget {
-  const ReaderBody({super.key, required this.size, required this.back});
+  const ReaderBody({
+    super.key,
+    required this.size,
+  });
   final Size size;
-  final VoidCallback back;
 
   @override
   State<ReaderBody> createState() => _ReaderBodyState();
@@ -23,7 +25,7 @@ class _ReaderBodyState extends State<ReaderBody> {
   File? _selectedImage;
 
   Future<void> _selectFromGallery(HomeCubit homeCubit) async {
-    homeCubit.updateIsFromGallery(true);
+    homeCubit.updateIsFromPdf(true);
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
       setState(() {
@@ -100,11 +102,8 @@ class _ReaderBodyState extends State<ReaderBody> {
 
         return BodyReaderInitial(
           size: widget.size,
-          back: widget.back,
           selectAndOpenPdf: (context, homeCubit) =>
               _selectAndOpenPdf(context, homeCubit),
-          selectFromGallery: (HomeCubit homeCubit) =>
-              _selectFromGallery(homeCubit),
         );
       },
     );

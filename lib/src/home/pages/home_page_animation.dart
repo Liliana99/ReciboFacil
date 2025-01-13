@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
-import 'package:recibo_facil/src/home/blocs/home_cubit.dart';
-import 'package:recibo_facil/src/home/blocs/utils/get_energy_advice.dart';
-import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/utils/get_energy_advice.dart';
+import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
 
 import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/home/widgets/card_decoration.dart';
@@ -14,7 +14,7 @@ import 'dart:math';
 
 import 'package:recibo_facil/src/home/widgets/title_home.dart';
 
-import '../../services/service_locator.dart';
+import '../../core/services/service_locator.dart';
 
 class HomePageAnimation extends StatefulWidget {
   @override
@@ -156,7 +156,7 @@ class _HomePageAnimationState extends State<HomePageAnimation>
                   MaterialPageRoute(
                     builder: (context) => BlocProvider.value(
                       value: getIt<HomeCubit>(),
-                      child: HomePageReader(),
+                      child: HomePage(),
                     ),
                   ),
                 ),

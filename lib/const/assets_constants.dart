@@ -14,4 +14,9 @@ class Assets {
   static const String airConditioner = '$iconPath/airConditioner.png';
   static const String recepit = '$iconPath/receipt.png';
   static const String calender = '$iconPath/calender.png';
+  static const String pdfIcon = '$iconPath/pdf.png';
+  static const String camera = '$iconPath/camera.png';
+  // ----------------------------------------------------
+  static const String billEnergyAnimation =
+      '$imagePath/energy_bill_animation.json';
 }

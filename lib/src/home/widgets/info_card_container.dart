@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recibo_facil/src/home/pages/home_page_reader.dart';
+import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
 
 class InfoCardContainer extends StatelessWidget {
   final Size size;

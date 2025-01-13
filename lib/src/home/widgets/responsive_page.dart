@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:recibo_facil/const/colors_constants.dart';
 
 class ResponsiveHomePage extends StatelessWidget {
   const ResponsiveHomePage(
@@ -21,22 +22,15 @@ class ResponsiveHomePage extends StatelessWidget {
     final screenWidth = size.width;
     final screenHeight = size.height;
 
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 232, 234, 245),
-        appBar: appBar,
-        floatingActionButton: floatingButton,
-        floatingActionButtonLocation: floatingLocationButton,
-        body: Center(
-          child: FractionallySizedBox(
-            // Ancho proporcional al 50% del tamaño del padre
-            widthFactor: screenWidth > 600
-                ? 0.98
-                : 1, // 40% en pantallas grandes, 80% en pequeñas
-            heightFactor: screenHeight > 800 ? 1 : 0.80,
-            child: body!,
-          ),
-        ),
+    return Scaffold(
+      backgroundColor: ColorsApp.baseColorApp,
+      floatingActionButton: floatingButton,
+      floatingActionButtonLocation: floatingLocationButton,
+      body: SizedBox(
+        height: screenHeight,
+        // Ancho proporcional al 50% del tamaño del padre
+        width: screenWidth > 600 ? screenWidth * 0.98 : double.infinity,
+        child: body!,
       ),
     );
   }

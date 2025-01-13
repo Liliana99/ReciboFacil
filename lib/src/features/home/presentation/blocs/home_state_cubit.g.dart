@@ -25,7 +25,7 @@ abstract class _$HomeStateCubitCWProxy {
 
   HomeStateCubit progressMessage(String? progressMessage);
 
-  HomeStateCubit isFromGallery(bool? isFromGallery);
+  HomeStateCubit isFromPdf(bool? isFromPdf);
 
   HomeStateCubit isFromCamera(bool? isFromCamera);
 
@@ -38,6 +38,26 @@ abstract class _$HomeStateCubitCWProxy {
   HomeStateCubit contract(String? contract);
 
   HomeStateCubit file(File? file);
+
+  HomeStateCubit pageNumber(int? pageNumber);
+
+  HomeStateCubit isImageVisible(bool? isImageVisible);
+
+  HomeStateCubit isLoading(bool? isLoading);
+
+  HomeStateCubit isComplete(bool? isComplete);
+
+  HomeStateCubit isError(String? isError);
+
+  HomeStateCubit valleyString(String? valleyString);
+
+  HomeStateCubit peakString(String? peakString);
+
+  HomeStateCubit contractType(String? contractType);
+
+  HomeStateCubit qrcode(String? qrcode);
+
+  HomeStateCubit hasNavigated(bool? hasNavigated);
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HomeStateCubit(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -55,13 +75,23 @@ abstract class _$HomeStateCubitCWProxy {
     bool? isScanning,
     String? errorMessage,
     String? progressMessage,
-    bool? isFromGallery,
+    bool? isFromPdf,
     bool? isFromCamera,
     String? company,
     String? billNumber,
     String? cups,
     String? contract,
     File? file,
+    int? pageNumber,
+    bool? isImageVisible,
+    bool? isLoading,
+    bool? isComplete,
+    String? isError,
+    String? valleyString,
+    String? peakString,
+    String? contractType,
+    String? qrcode,
+    bool? hasNavigated,
   });
 }
 
@@ -103,8 +133,7 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
       this(progressMessage: progressMessage);
 
   @override
-  HomeStateCubit isFromGallery(bool? isFromGallery) =>
-      this(isFromGallery: isFromGallery);
+  HomeStateCubit isFromPdf(bool? isFromPdf) => this(isFromPdf: isFromPdf);
 
   @override
   HomeStateCubit isFromCamera(bool? isFromCamera) =>
@@ -126,6 +155,40 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
   HomeStateCubit file(File? file) => this(file: file);
 
   @override
+  HomeStateCubit pageNumber(int? pageNumber) => this(pageNumber: pageNumber);
+
+  @override
+  HomeStateCubit isImageVisible(bool? isImageVisible) =>
+      this(isImageVisible: isImageVisible);
+
+  @override
+  HomeStateCubit isLoading(bool? isLoading) => this(isLoading: isLoading);
+
+  @override
+  HomeStateCubit isComplete(bool? isComplete) => this(isComplete: isComplete);
+
+  @override
+  HomeStateCubit isError(String? isError) => this(isError: isError);
+
+  @override
+  HomeStateCubit valleyString(String? valleyString) =>
+      this(valleyString: valleyString);
+
+  @override
+  HomeStateCubit peakString(String? peakString) => this(peakString: peakString);
+
+  @override
+  HomeStateCubit contractType(String? contractType) =>
+      this(contractType: contractType);
+
+  @override
+  HomeStateCubit qrcode(String? qrcode) => this(qrcode: qrcode);
+
+  @override
+  HomeStateCubit hasNavigated(bool? hasNavigated) =>
+      this(hasNavigated: hasNavigated);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HomeStateCubit(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -143,13 +206,23 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
     Object? isScanning = const $CopyWithPlaceholder(),
     Object? errorMessage = const $CopyWithPlaceholder(),
     Object? progressMessage = const $CopyWithPlaceholder(),
-    Object? isFromGallery = const $CopyWithPlaceholder(),
+    Object? isFromPdf = const $CopyWithPlaceholder(),
     Object? isFromCamera = const $CopyWithPlaceholder(),
     Object? company = const $CopyWithPlaceholder(),
     Object? billNumber = const $CopyWithPlaceholder(),
     Object? cups = const $CopyWithPlaceholder(),
     Object? contract = const $CopyWithPlaceholder(),
     Object? file = const $CopyWithPlaceholder(),
+    Object? pageNumber = const $CopyWithPlaceholder(),
+    Object? isImageVisible = const $CopyWithPlaceholder(),
+    Object? isLoading = const $CopyWithPlaceholder(),
+    Object? isComplete = const $CopyWithPlaceholder(),
+    Object? isError = const $CopyWithPlaceholder(),
+    Object? valleyString = const $CopyWithPlaceholder(),
+    Object? peakString = const $CopyWithPlaceholder(),
+    Object? contractType = const $CopyWithPlaceholder(),
+    Object? qrcode = const $CopyWithPlaceholder(),
+    Object? hasNavigated = const $CopyWithPlaceholder(),
   }) {
     return HomeStateCubit(
       month: month == const $CopyWithPlaceholder()
@@ -188,10 +261,10 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
           ? _value.progressMessage
           // ignore: cast_nullable_to_non_nullable
           : progressMessage as String?,
-      isFromGallery: isFromGallery == const $CopyWithPlaceholder()
-          ? _value.isFromGallery
+      isFromPdf: isFromPdf == const $CopyWithPlaceholder()
+          ? _value.isFromPdf
           // ignore: cast_nullable_to_non_nullable
-          : isFromGallery as bool?,
+          : isFromPdf as bool?,
       isFromCamera: isFromCamera == const $CopyWithPlaceholder()
           ? _value.isFromCamera
           // ignore: cast_nullable_to_non_nullable
@@ -216,6 +289,46 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
           ? _value.file
           // ignore: cast_nullable_to_non_nullable
           : file as File?,
+      pageNumber: pageNumber == const $CopyWithPlaceholder()
+          ? _value.pageNumber
+          // ignore: cast_nullable_to_non_nullable
+          : pageNumber as int?,
+      isImageVisible: isImageVisible == const $CopyWithPlaceholder()
+          ? _value.isImageVisible
+          // ignore: cast_nullable_to_non_nullable
+          : isImageVisible as bool?,
+      isLoading: isLoading == const $CopyWithPlaceholder()
+          ? _value.isLoading
+          // ignore: cast_nullable_to_non_nullable
+          : isLoading as bool?,
+      isComplete: isComplete == const $CopyWithPlaceholder()
+          ? _value.isComplete
+          // ignore: cast_nullable_to_non_nullable
+          : isComplete as bool?,
+      isError: isError == const $CopyWithPlaceholder()
+          ? _value.isError
+          // ignore: cast_nullable_to_non_nullable
+          : isError as String?,
+      valleyString: valleyString == const $CopyWithPlaceholder()
+          ? _value.valleyString
+          // ignore: cast_nullable_to_non_nullable
+          : valleyString as String?,
+      peakString: peakString == const $CopyWithPlaceholder()
+          ? _value.peakString
+          // ignore: cast_nullable_to_non_nullable
+          : peakString as String?,
+      contractType: contractType == const $CopyWithPlaceholder()
+          ? _value.contractType
+          // ignore: cast_nullable_to_non_nullable
+          : contractType as String?,
+      qrcode: qrcode == const $CopyWithPlaceholder()
+          ? _value.qrcode
+          // ignore: cast_nullable_to_non_nullable
+          : qrcode as String?,
+      hasNavigated: hasNavigated == const $CopyWithPlaceholder()
+          ? _value.hasNavigated
+          // ignore: cast_nullable_to_non_nullable
+          : hasNavigated as bool?,
     );
   }
 }

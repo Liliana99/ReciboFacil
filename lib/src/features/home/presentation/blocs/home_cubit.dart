@@ -1,11 +1,13 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:pdfrx/pdfrx.dart';
-import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
 import 'package:recibo_facil/src/home/repositories/pdf_repository.dart';
 import 'package:recibo_facil/src/home/utils/recognized_text.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'utils/get_energy_advice.dart';
 
@@ -25,15 +27,21 @@ class HomeCubit extends Cubit<HomeStateCubit> {
 
       // Acumular la información relevante
       emit(state.copyWith(
-          scannedText: response.scannedText,
-          month: response.month ?? state.month,
-          totalAmount: response.totalAmount ?? state.totalAmount,
-          peak: response.consumptionPunta ?? state.peak,
-          plain: response.consumptionLlano ?? state.plain,
-          valley: response.consumptionValle ?? state.valley,
-          company: response.company ?? state.company,
-          contract: response.contract ?? state.contract,
-          cups: response.cups ?? state.cups));
+        scannedText: response.scannedText,
+        month: response.month ?? state.month,
+        totalAmount: response.totalAmount ?? state.totalAmount,
+        peak: response.consumptionPunta ?? state.peak,
+        billNumber: response.billNumber ?? state.billNumber,
+        valley: response.consumptionValle ?? state.valley,
+        company: response.company ?? state.company,
+        contract: response.contract ?? state.contract,
+        cups: response.cups ?? state.cups,
+        pageNumber: response.pageNumber ?? state.pageNumber,
+        valleyString: response.valleyString ?? state.valleyString,
+        peakString: response.peakString ?? state.peakString,
+        qrcode: response.qrCodeLink ?? state.qrcode,
+        isComplete: true,
+      ));
 
       // Finalizar el escaneo, si no hay datos relevantes mostrar error
       if (state.scannedText == null && state.totalAmount == null) {
@@ -104,12 +112,12 @@ class HomeCubit extends Cubit<HomeStateCubit> {
         isHoliday(currentTime, holidays));
   }
 
-  void updateIsFromGallery(bool isFromGallery) =>
-      emit(state.copyWith(isFromGallery: isFromGallery));
+  void updateIsFromPdf(bool isFromGallery) =>
+      emit(state.copyWith(isFromPdf: isFromGallery));
 
   void initializeFlagsSource() {
     emit(state.copyWith(
-        isFromGallery: false, isFromCamera: false, isScanning: false));
+        isFromPdf: false, isFromCamera: false, isScanning: false));
   }
 
   void extractCompanyInfo(String pdfText) {
@@ -138,4 +146,69 @@ class HomeCubit extends Cubit<HomeStateCubit> {
   }
 
   void updatePathFile(File file) => emit(state.copyWith(file: file));
+
+  void updatePageNumer(int page) => emit(
+        state.copyWith(pageNumber: page),
+      );
+
+  void updateImageVisible(bool isImageVisible) => emit(
+        state.copyWith(isImageVisible: isImageVisible),
+      );
+
+  Future<void> selectAndOpenPdf() async {
+    try {
+      // Seleccionar el archivo PDF
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null) {
+        String? pdfPath = result.files.single.path;
+
+        if (pdfPath != null) {
+          updateIsScanning(true);
+          updateIsFromPdf(true);
+          updatePathFile(File(pdfPath));
+          updateHasNavigate(false);
+
+          // Procesar el archivo PDF
+          final document = await loadPdf(pdfPath);
+
+          // Buscar términos en el documento
+          await searchPdf(document, [
+            "total importe a pagar",
+            "Periodo de facturación",
+            "nº factura",
+            "Datos del contrato de electricidad",
+            "Potencias contratadas",
+            "CUPS",
+            "Contrato de mercado libre:",
+            "kwh evolucion del consumo",
+            "INFORMACIÓN PARA EL CONSUMIDOR"
+          ]);
+
+          emit(
+            state.copyWith(
+                isLoading: false, hasNavigated: true, isComplete: true),
+          ); // Emitir estado de escaneo completo
+        }
+      } else {
+        emit(state.copyWith(
+            isError: "Selección de archivo cancelada")); // Emitir error
+      }
+    } catch (e) {
+      emit(state.copyWith(isError: "Error procesando el archivo: $e"));
+    }
+  }
+
+  Future<void> launcLink(String url) async {
+    final Uri url0 = Uri.parse(url);
+    if (!await launchUrl(url0)) {
+      throw Exception('Could not launch $url0');
+    }
+  }
+
+  void updateHasNavigate(bool newValue) =>
+      emit(state.copyWith(hasNavigated: newValue));
 }

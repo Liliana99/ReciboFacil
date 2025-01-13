@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:pdf_render/pdf_render.dart';
-import 'package:recibo_facil/src/home/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
 
 class PdfInteractiveViewer extends StatefulWidget {
   final String pdfFilePath;
