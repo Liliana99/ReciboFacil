@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 import 'package:recibo_facil/const/assets_constants.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
-import 'package:recibo_facil/src/features/home/presentation/routes/app_router.dart';
+import 'package:recibo_facil/src/core/navigation/routes/app_router.dart';
+import 'package:recibo_facil/src/features/home/presentation/utils/calculate_days_between.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
+import 'package:recibo_facil/src/features/home/presentation/utils/parse_currency.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/ui_helper.dart';
 import 'package:recibo_facil/src/features/home/widgets/bill_contrat_detail.dart';
 import 'package:recibo_facil/src/features/home/widgets/card_tip_bill.dart';
@@ -83,6 +85,10 @@ class BillDetailScreen extends StatelessWidget {
                         ],
                         companyName: currentState.company ?? '',
                         month: currentState.month ?? '',
+                        days: currentState.startDate != null
+                            ? calculateDaysBetween(
+                                currentState.startDate!, currentState.endDate!)
+                            : null,
                       ),
               ),
             ),
@@ -137,53 +143,26 @@ class BillDetailScreen extends StatelessWidget {
                             ),
                           ),
                         );
-                      } else if (index == 1) {
+                      } else if (index == 1 &&
+                          currentState.totalAmount != null &&
+                          currentState.startDate != null &&
+                          currentState.endDate != null) {
                         return Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: size.height * 0.01,
-                              horizontal: size.width * 0.03),
-                          child: InfoCard2(
-                            key: ValueKey('info_card_potencias'),
-                            width: size.width * 0.03,
-                            height: infoCard2Height,
-                            onPressed: () {},
-                            child: Column(
-                              children: [
-                                Text(
-                                  'Potencias contratadas',
-                                  textAlign: TextAlign.center,
-                                  style: context.bodyL!.copyWith(
-                                    color: ColorsApp.baseColorApp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                SizedBox(height: 12.0),
-                                Text(
-                                  'Punta: ${currentState.peakString}, ',
-                                  style: context.bodyM!
-                                      .copyWith(fontWeight: FontWeight.w600),
-                                ),
-                                Text(
-                                  'Valle: ${currentState.valleyString}, ',
-                                  style: context.bodyM!
-                                      .copyWith(fontWeight: FontWeight.w600),
-                                ),
-                              ],
-                            ),
+                              horizontal: size.width * 0.01),
+                          child: CardTipBill(
+                            size: size,
+                            key: ValueKey('info_card_tip_bill'),
+                            days: calculateDaysBetween(
+                                currentState.startDate!, currentState.endDate!),
+                            factura: parseCurrency(currentState.totalAmount!),
                           ),
-                        );
-                      } else if (index == 2 &&
-                          currentState.totalAmount != null) {
-                        return CardTipBill(
-                          key: ValueKey('info_card_tip_bill'),
-                          factura:
-                              double.tryParse(currentState.totalAmount!) ?? 0.0,
                         );
                       }
 
                       return null;
                     },
-                    childCount: 3, // Number of items in the list
+                    childCount: 2, // Number of items in the list
                   ),
                 ),
               ),
@@ -240,6 +219,7 @@ Widget _buildOption({
 }) {
   return SizedBox(
     width: MediaQuery.of(context).size.width * 0.2,
+    height: MediaQuery.of(context).size.height * 0.1,
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,

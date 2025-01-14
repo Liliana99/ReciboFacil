@@ -6,6 +6,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:pdfrx/pdfrx.dart';
 import 'package:recibo_facil/src/features/data/repositories/pdf_repository.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/features/data/reconized_text.dart';
 
 import 'package:url_launcher/url_launcher.dart';
 
@@ -41,6 +42,8 @@ class HomeCubit extends Cubit<HomeStateCubit> {
         peakString: response.peakString ?? state.peakString,
         qrcode: response.qrCodeLink ?? state.qrcode,
         isComplete: true,
+        startDate: response.startDate ?? state.startDate,
+        endDate: response.endDate ?? state.endDate,
       ));
 
       // Finalizar el escaneo, si no hay datos relevantes mostrar error
@@ -211,4 +214,7 @@ class HomeCubit extends Cubit<HomeStateCubit> {
 
   void updateHasNavigate(bool newValue) =>
       emit(state.copyWith(hasNavigated: newValue));
+
+  void updateIsLoading(bool newValue) =>
+      emit(state.copyWith(isLoading: newValue));
 }

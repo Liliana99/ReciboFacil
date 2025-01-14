@@ -59,6 +59,10 @@ abstract class _$HomeStateCubitCWProxy {
 
   HomeStateCubit hasNavigated(bool? hasNavigated);
 
+  HomeStateCubit startDate(String? startDate);
+
+  HomeStateCubit endDate(String? endDate);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HomeStateCubit(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -92,6 +96,8 @@ abstract class _$HomeStateCubitCWProxy {
     String? contractType,
     String? qrcode,
     bool? hasNavigated,
+    String? startDate,
+    String? endDate,
   });
 }
 
@@ -189,6 +195,12 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
       this(hasNavigated: hasNavigated);
 
   @override
+  HomeStateCubit startDate(String? startDate) => this(startDate: startDate);
+
+  @override
+  HomeStateCubit endDate(String? endDate) => this(endDate: endDate);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `HomeStateCubit(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -223,6 +235,8 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
     Object? contractType = const $CopyWithPlaceholder(),
     Object? qrcode = const $CopyWithPlaceholder(),
     Object? hasNavigated = const $CopyWithPlaceholder(),
+    Object? startDate = const $CopyWithPlaceholder(),
+    Object? endDate = const $CopyWithPlaceholder(),
   }) {
     return HomeStateCubit(
       month: month == const $CopyWithPlaceholder()
@@ -329,6 +343,14 @@ class _$HomeStateCubitCWProxyImpl implements _$HomeStateCubitCWProxy {
           ? _value.hasNavigated
           // ignore: cast_nullable_to_non_nullable
           : hasNavigated as bool?,
+      startDate: startDate == const $CopyWithPlaceholder()
+          ? _value.startDate
+          // ignore: cast_nullable_to_non_nullable
+          : startDate as String?,
+      endDate: endDate == const $CopyWithPlaceholder()
+          ? _value.endDate
+          // ignore: cast_nullable_to_non_nullable
+          : endDate as String?,
     );
   }
 }

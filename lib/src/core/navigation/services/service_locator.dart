@@ -1,7 +1,7 @@
 import 'package:get_it/get_it.dart';
-import 'package:recibo_facil/src/core/services/navigation_services.dart';
+import 'package:recibo_facil/src/core/navigation/services/navigation_services.dart';
+import 'package:recibo_facil/src/features/data/repositories/pdf_repository.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
-import 'package:recibo_facil/src/home/repositories/pdf_repository.dart';
 
 final getIt = GetIt.instance;
 

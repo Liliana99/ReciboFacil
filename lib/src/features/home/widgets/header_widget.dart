@@ -11,15 +11,16 @@ class HeaderWidget extends StatelessWidget {
   final String? subtitle;
   final Widget? leadingWidget; // Por ejemplo, un botón "Atrás"
   final List<Widget>? trailingWidgets; // Widgets adicionales
+  final int? days;
 
-  const HeaderWidget({
-    super.key,
-    required this.title,
-    this.titleStyle,
-    this.subtitle,
-    this.leadingWidget,
-    this.trailingWidgets,
-  });
+  const HeaderWidget(
+      {super.key,
+      required this.title,
+      this.titleStyle,
+      this.subtitle,
+      this.leadingWidget,
+      this.trailingWidgets,
+      this.days});
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +95,7 @@ class HeaderWidgetDetail extends StatelessWidget {
   final String? subtitle;
   final String? companyName;
   final List<Widget>? trailingWidgets;
+  final int? days;
 
   const HeaderWidgetDetail(
       {super.key,
@@ -101,7 +103,8 @@ class HeaderWidgetDetail extends StatelessWidget {
       this.subtitle,
       this.trailingWidgets,
       required this.month,
-      this.companyName}); // Widgets adicionales
+      this.companyName,
+      this.days}); // Widgets adicionales
 
   @override
   Widget build(BuildContext context) {
@@ -157,19 +160,33 @@ class HeaderWidgetDetail extends StatelessWidget {
                 maxLines: 2,
               ),
             ),
-            Align(
-              alignment: Alignment.topLeft,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: size.width * 0.10),
               child: SizedBox(
                 width: 400,
                 child: Text(
+                  textAlign: TextAlign.center,
                   month,
                   style: context.bodyM!.copyWith(fontWeight: FontWeight.w600),
                   maxLines: 2,
                 ),
               ),
-            )
+            ),
+            if (days != null)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: size.width * 0.10),
+                child: SizedBox(
+                  width: 400,
+                  child: Text(
+                    'dias ($days)',
+                    textAlign: TextAlign.center,
+                    style: context.bodyM!.copyWith(fontWeight: FontWeight.w600),
+                    maxLines: 2,
+                  ),
+                ),
+              )
           ],
-          0.05.htRelative(size),
+          0.07.htRelative(size),
           if (trailingWidgets != null && trailingWidgets!.isNotEmpty)
             Wrap(
               children: trailingWidgets!, // Widgets alineados a la derecha

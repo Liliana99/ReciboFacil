@@ -6,7 +6,6 @@ class PdfRepository {
   Future<ResponsePdfReader> searchTextOnPdf(
       PdfDocument document, List<String> queries) async {
     if (document.pages.isEmpty) {
-      print("El documento no contiene páginas.");
       return ResponsePdfReader(scannedText: 'No se encontró el término');
     }
 
@@ -51,9 +50,12 @@ class PdfRepository {
 
                   // Buscar "periodo de facturación"
                   if (query == "periodo de facturacion") {
-                    response =
-                        response.copyWith(month: extractBillingPeriod(line));
-                    print('Contenido de response.month: ${response.month}');
+                    final mapReponse = extractBillingPeriod(line);
+                    response = response.copyWith(
+                        month:
+                            ' ${'${mapReponse['startDate']} a ${mapReponse['endDate']}'}',
+                        startDate: mapReponse['startDate'],
+                        endDate: mapReponse['endDate']);
                   }
 
                   // Buscar "total importe a pagar"
@@ -182,23 +184,19 @@ Decimal extractConsumptionValue(String line, {String? keyword}) {
   return Decimal.zero;
 }
 
-String? extractBillingPeriod(String line) {
+Map<String, String?> extractBillingPeriod(String line) {
   // Expresión regular para buscar un rango de fechas, ej: "del 22/09/2024 a 21/10/2024"
   final billingPeriodPattern =
       RegExp(r'del (\d{2}/\d{2}/\d{4}) a (\d{2}/\d{2}/\d{4})');
   final match = billingPeriodPattern.firstMatch(line);
 
-  print("Intentando extraer periodo de facturación de la línea: $line");
-
   if (match != null) {
     final startDate = match.group(1);
     final endDate = match.group(2);
-    print(
-        "Entro antes de devolver este valor. Intentando extraer periodo de facturación de la línea: $line");
-    return 'Desde $startDate hasta $endDate';
-  }
 
-  return null; // Si no encuentra el patrón, retorna null
+    return {'startDate': startDate, 'endDate': endDate};
+  }
+  return {'startDate': null, 'endDate': null};
 }
 
 String? getValueWithCurrency(String line) {
@@ -340,6 +338,8 @@ Map<String, String?> extractTotalAmount(String line, List<String> lines) {
 class ResponsePdfReader {
   final String scannedText;
   final String? month;
+  final String? startDate;
+  final String? endDate;
   final String? totalAmount;
   final Decimal? consumptionPunta;
   final Decimal? consumptionLlano;
@@ -368,6 +368,8 @@ class ResponsePdfReader {
     this.valleyString,
     this.peakString,
     this.qrCodeLink,
+    this.startDate,
+    this.endDate,
   });
 
   ResponsePdfReader copyWith({
@@ -385,6 +387,8 @@ class ResponsePdfReader {
     String? valleyString,
     String? peakString,
     String? qrCodeLink,
+    final String? startDate,
+    final String? endDate,
   }) {
     return ResponsePdfReader(
       scannedText: scannedText ?? this.scannedText,
@@ -401,6 +405,8 @@ class ResponsePdfReader {
       valleyString: valleyString ?? this.valleyString,
       peakString: peakString ?? this.peakString,
       qrCodeLink: qrCodeLink ?? this.qrCodeLink,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
     );
   }
 }

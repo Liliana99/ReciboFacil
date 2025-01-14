@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:recibo_facil/src/features/home/presentation/routes/with_extra.dart';
+import 'package:recibo_facil/src/core/navigation/routes/with_extra.dart';
 
 class NavigationService {
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();

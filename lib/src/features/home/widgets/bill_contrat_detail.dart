@@ -3,6 +3,7 @@ import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/ui_helper.dart';
+import 'package:recibo_facil/src/features/home/widgets/card_tip_bill.dart';
 
 import 'package:recibo_facil/ui_theme_extension.dart';
 
@@ -23,89 +24,128 @@ void openDraggableModal(BuildContext context, HomeStateCubit state) {
         builder: (BuildContext context, ScrollController scrollController) {
           return Container(
             padding: EdgeInsets.all(16),
-            child: Column(
-              spacing: 16,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Stack(
-                  children: [
-                    Center(
-                      child: ModalDecorationLine(
-                        size: size,
+            child: SingleChildScrollView(
+              child: Column(
+                spacing: 16,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Stack(
+                    children: [
+                      Center(
+                        child: ModalDecorationLine(
+                          size: size,
+                        ),
                       ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: Icon(
+                              Icons.close,
+                              size: size.height * 0.03,
+                            )),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    'Detalles de tu contrato',
+                    style: getResponsiveTextStyle(
+                            context, context.bodyL!, context.dispM!)
+                        .copyWith(
+                            color: ColorsApp.baseColorApp,
+                            fontWeight: FontWeight.bold),
+                  ),
+                  4.ht,
+                  Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Factura número:',
+                        style: getResponsiveTextStyle(
+                                context, context.bodyM!, context.bodyL!)
+                            .copyWith(color: ColorsApp.baseColorApp),
+                      ),
+                      Text(
+                        ' ${state.billNumber ?? ''}',
+                        style: getResponsiveTextStyle(
+                            context, context.bodyM!, context.bodyL!),
+                      )
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'CUPS:',
+                        style: getResponsiveTextStyle(
+                                context, context.bodyM!, context.bodyL!)
+                            .copyWith(color: ColorsApp.baseColorApp),
+                      ),
+                      Text(
+                        state.cups ?? '',
+                        style: getResponsiveTextStyle(
+                            context, context.bodyM!, context.bodyL!),
+                      )
+                    ],
+                  ),
+                  Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Contracto:',
+                        style: getResponsiveTextStyle(
+                                context, context.bodyM!, context.bodyL!)
+                            .copyWith(color: ColorsApp.baseColorApp),
+                      ),
+                      Text(
+                        state.contract ?? '',
+                        style: getResponsiveTextStyle(
+                            context, context.bodyM!, context.bodyL!),
+                      ),
+                    ],
+                  ),
+                  12.ht,
+                  InfoCard2(
+                    width: size.width * 0.80,
+                    onPressed: () {},
+                    child: Column(
+                      children: [
+                        Text(
+                          'Potencias contratadas',
+                          textAlign: TextAlign.center,
+                          style: getResponsiveTextStyle(
+                                  context, context.bodyM!, context.bodyL!)
+                              .copyWith(color: ColorsApp.baseColorApp),
+                        ),
+                        12.ht,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Punta: ${state.peakString}, ',
+                              style: getResponsiveTextStyle(
+                                  context, context.bodyM!, context.bodyL!),
+                            ),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Valle: ${state.valleyString}, ',
+                              style: getResponsiveTextStyle(
+                                  context, context.bodyM!, context.bodyL!),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Align(
-                      alignment: Alignment.topRight,
-                      child: IconButton(
-                          onPressed: () => Navigator.pop(context),
-                          icon: Icon(
-                            Icons.close,
-                            size: size.height * 0.03,
-                          )),
-                    ),
-                  ],
-                ),
-                Text(
-                  'Detalles de tu contrato',
-                  style: getResponsiveTextStyle(
-                          context, context.bodyL!, context.dispM!)
-                      .copyWith(
-                          color: ColorsApp.baseColorApp,
-                          fontWeight: FontWeight.bold),
-                ),
-                12.ht,
-                Row(
-                  spacing: 5,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Factura número:',
-                      style: getResponsiveTextStyle(
-                              context, context.bodyM!, context.bodyL!)
-                          .copyWith(color: ColorsApp.baseColorApp),
-                    ),
-                    Text(
-                      ' ${state.billNumber ?? ''}',
-                      style: getResponsiveTextStyle(
-                          context, context.bodyM!, context.bodyL!),
-                    )
-                  ],
-                ),
-                Row(
-                  spacing: 5,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'CUPS:',
-                      style: getResponsiveTextStyle(
-                              context, context.bodyM!, context.bodyL!)
-                          .copyWith(color: ColorsApp.baseColorApp),
-                    ),
-                    Text(
-                      state.cups ?? '',
-                      style: getResponsiveTextStyle(
-                          context, context.bodyM!, context.bodyL!),
-                    )
-                  ],
-                ),
-                Row(
-                  spacing: 5,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Contracto:',
-                      style: getResponsiveTextStyle(
-                              context, context.bodyM!, context.bodyL!)
-                          .copyWith(color: ColorsApp.baseColorApp),
-                    ),
-                    Text(
-                      state.contract ?? '',
-                      style: getResponsiveTextStyle(
-                          context, context.bodyM!, context.bodyL!),
-                    ),
-                  ],
-                ),
-              ],
+                  )
+                ],
+              ),
             ),
           );
         },

@@ -34,44 +34,46 @@ class BottomSheetWidget extends StatelessWidget {
               Expanded(
                 child: ListView(
                   children: [
-                    ListTile(
-                      leading: SizedBox(
-                        height: 40,
-                        child: Image.asset(
-                          Assets.pdfIcon,
-                          color: Colors.orange,
+                    GestureDetector(
+                      onTap: onPressedPDF,
+                      child: ListTile(
+                        leading: SizedBox(
+                          height: 40,
+                          child: Image.asset(
+                            Assets.pdfIcon,
+                            color: Colors.orange,
+                          ),
                         ),
-                      ),
-                      title: const Text("Subir factura desde archivo"),
-                      subtitle: const Text("PDF"),
-                      trailing: IconButton(
-                        onPressed: onPressedPDF,
-                        icon: const Icon(Icons.arrow_forward_ios_outlined),
+                        title: const Text("Subir factura desde archivo"),
+                        subtitle: const Text("PDF"),
+                        trailing: IconButton(
+                          onPressed: null,
+                          icon: const Icon(Icons.arrow_forward_ios_outlined),
+                        ),
                       ),
                     ),
                     30.ht,
-                    ListTile(
-                      leading: SizedBox(
-                        height: 40,
-                        child: Image.asset(
-                          Assets.camera,
-                          color: Colors.orange,
+                    GestureDetector(
+                      onTap: onPressedScanBill,
+                      child: ListTile(
+                        leading: SizedBox(
+                          height: 40,
+                          child: Image.asset(
+                            Assets.camera,
+                            color: Colors.orange,
+                          ),
                         ),
-                      ),
-                      title: const Text("Escanear factura"),
-                      subtitle: const Text("Cámara"),
-                      trailing: IconButton(
-                        onPressed: onPressedScanBill,
-                        icon: const Icon(Icons.arrow_forward_ios_outlined),
+                        title: const Text("Escanear factura"),
+                        subtitle: const Text("Cámara"),
+                        trailing: IconButton(
+                          onPressed: null,
+                          icon: const Icon(Icons.arrow_forward_ios_outlined),
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-              // TextButton(
-              //   onPressed: () {},
-              //   child: const Text("Ver todo"),
-              // ),
             ],
           ),
         ),

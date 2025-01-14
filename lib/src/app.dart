@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
-import 'package:recibo_facil/src/features/home/presentation/routes/app_router.dart';
+import 'package:recibo_facil/src/core/navigation/routes/app_router.dart';
 
 import 'settings/settings_controller.dart';
 

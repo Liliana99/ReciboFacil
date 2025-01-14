@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pdf_render/pdf_render_widgets.dart';
-import 'package:recibo_facil/src/features/home/presentation/routes/app_router.dart';
+import 'package:recibo_facil/src/core/navigation/routes/app_router.dart';
 
 class PdfViewerScreen extends StatelessWidget {
   final String pdfPath; // Ruta del archivo PDF (local o de red)

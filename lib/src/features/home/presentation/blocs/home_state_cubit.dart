@@ -9,6 +9,8 @@ part 'home_state_cubit.g.dart';
 @CopyWith()
 class HomeStateCubit extends Equatable {
   final String? month;
+  final String? startDate;
+  final String? endDate;
   final String? totalAmount;
   final Decimal? peak;
   final Decimal? plain;
@@ -62,6 +64,8 @@ class HomeStateCubit extends Equatable {
     this.contractType,
     this.qrcode,
     this.hasNavigated = false,
+    this.startDate,
+    this.endDate,
   });
 
   @override
@@ -92,5 +96,7 @@ class HomeStateCubit extends Equatable {
         contractType,
         qrcode,
         hasNavigated,
+        startDate,
+        endDate,
       ];
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/assets_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
-import 'package:recibo_facil/src/features/home/widgets/image_with_overlay.dart';
 
 class EnergySegmentAdvice extends StatelessWidget {
   final DateTime currentTime;
@@ -259,35 +258,4 @@ bool isTimeInRange(TimeOfDay current, TimeOfDay start, TimeOfDay end) {
     // Rango que cruza la medianoche
     return currentMinutes >= startMinutes || currentMinutes <= endMinutes;
   }
-}
-
-Map<String, dynamic> getSegmentForCurrentTime(
-  TimeOfDay current,
-  List<Map<String, dynamic>> segments,
-) {
-  // Evaluar segmentos para días normales
-  for (final segment in segments) {
-    final periods = segment["periods"] as List<Map<String, TimeOfDay>>;
-    if (isTimeInRanges(current, periods)) {
-      return {
-        "name": segment["name"],
-        "range": segment["range"],
-        "tip": segment["tip"],
-        "widgets": (segment["images"] as List<String>).map((imagePath) {
-          return ImageWithRedOverlay(
-            baseImagePath: imagePath,
-            overlayImagePath: "assets/iconos/close.png",
-          );
-        }).toList(),
-      };
-    }
-  }
-
-  // Si no se encuentra un segmento
-  return {
-    "name": "Sin segmento",
-    "range": "N/A",
-    "tip": "No hay información disponible para este horario.",
-    "widgets": []
-  };
 }
