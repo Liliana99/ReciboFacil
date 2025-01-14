@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
+import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/ui_helper.dart';
-import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
+
 import 'package:recibo_facil/ui_theme_extension.dart';
 
 void openDraggableModal(BuildContext context, HomeStateCubit state) {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/assets_constants.dart';
-import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
-import 'package:recibo_facil/src/home/widgets/image_with_overlay.dart';
+import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
+import 'package:recibo_facil/src/features/home/widgets/image_with_overlay.dart';
 
 class EnergySegmentAdvice extends StatelessWidget {
   final DateTime currentTime;

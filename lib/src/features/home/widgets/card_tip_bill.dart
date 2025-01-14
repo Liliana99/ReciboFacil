@@ -71,3 +71,32 @@ class CardTipBill extends StatelessWidget {
     );
   }
 }
+
+class InfoCard2 extends StatelessWidget {
+  final Widget child;
+  final double? width;
+  final double? height;
+  final VoidCallback onPressed;
+  const InfoCard2(
+      {super.key,
+      required this.child,
+      required this.width,
+      this.height,
+      required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+          width: width,
+          height: height,
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: child),
+    );
+  }
+}

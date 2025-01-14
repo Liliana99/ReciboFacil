@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
-import 'package:recibo_facil/src/core/services/service_locator.dart';
+import 'package:recibo_facil/src/core/navigation/services/service_locator.dart';
 
 import 'src/app.dart';
 import 'src/settings/settings_controller.dart';

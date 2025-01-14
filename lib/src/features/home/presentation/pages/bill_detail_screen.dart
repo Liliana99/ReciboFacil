@@ -5,13 +5,13 @@ import 'package:recibo_facil/const/assets_constants.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_cubit.dart';
 import 'package:recibo_facil/src/features/home/presentation/routes/app_router.dart';
+import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/ui_helper.dart';
 import 'package:recibo_facil/src/features/home/widgets/bill_contrat_detail.dart';
 import 'package:recibo_facil/src/features/home/widgets/card_tip_bill.dart';
 import 'package:recibo_facil/src/features/home/widgets/custom_icon_button.dart';
 import 'package:recibo_facil/src/features/home/widgets/header_widget.dart';
-import 'package:recibo_facil/src/home/pages/home_page/home_page.dart';
-import 'package:recibo_facil/src/home/utils/custom_extension_sized.dart';
+
 import 'package:recibo_facil/ui_theme_extension.dart';
 
 class BillDetailScreen extends StatelessWidget {

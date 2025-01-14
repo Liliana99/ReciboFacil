@@ -4,9 +4,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:recibo_facil/src/features/data/repositories/pdf_repository.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
-import 'package:recibo_facil/src/home/repositories/pdf_repository.dart';
-import 'package:recibo_facil/src/home/utils/recognized_text.dart';
+
 import 'package:url_launcher/url_launcher.dart';
 
 import 'utils/get_energy_advice.dart';
