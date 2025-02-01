@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:recibo_facil/const/colors_constants.dart';
 import 'package:recibo_facil/src/features/home/presentation/utils/custom_extension_sized.dart';
 
-import 'dart:io';
+import 'package:flutter/foundation.dart'
+    show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'dart:io' if (dart.library.html) 'dart:html'
+    as html; // ✅ Solo importa lo necesario
+
 import 'package:recibo_facil/ui_theme_extension.dart';
 
 class HeaderWidget extends StatelessWidget {
@@ -32,7 +36,7 @@ class HeaderWidget extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(
-              top: Platform.isAndroid
+              top: (kIsWeb || defaultTargetPlatform == TargetPlatform.android)
                   ? MediaQuery.of(context).padding.top + 16.0
                   : 8.0,
             ),
@@ -116,7 +120,7 @@ class HeaderWidgetDetail extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(
-              top: Platform.isAndroid
+              top: (kIsWeb || defaultTargetPlatform == TargetPlatform.android)
                   ? MediaQuery.of(context).padding.top + 16.0
                   : 8.0,
             ),

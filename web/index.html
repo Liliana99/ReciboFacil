@@ -1,19 +1,7 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -27,12 +15,78 @@
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png" />
 
   <title>recibo_facil</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Establece un ancho mínimo y asegura que el contenido se muestre con scroll si la ventana se reduce */
+    html,
+    body {
+      min-width: 500px;
+      min-height: 600px;
+      /* Aquí se define el mínimo para el contenido */
+      width: 100%;
+      height: auto;
+      /* Permite que la altura sea "auto" para activar scroll en vez de forzar la ventana */
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+      overflow-y: auto;
+      /* Activa el scroll vertical si el contenido es mayor al alto de la ventana */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Contenedor principal de la aplicación */
+    #app-container {
+      min-height: 600px;
+      /* El contenido nunca se reducirá por debajo de 600px */
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      flex-grow: 1;
+      /* Puedes agregar un background para depuración, por ejemplo:
+           background-color: lightgray;
+        */
+    }
+
+    /* Opcional: Si el ancho es menor a 400px, podrías aumentar el mínimo */
+    @media (max-width: 500px) {
+
+      html,
+      body,
+      #app-container {
+        min-height: 700px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+  <!-- El contenedor principal que nunca se colapsará por debajo de 600px -->
+  <div id="app-container">
+    <div id="app">
+      <script src="flutter_bootstrap.js" async></script>
+    </div>
+  </div>
+
+  <script>
+    // Función para imprimir la altura de la ventana en la consola
+    function checkHeight() {
+      console.log("🔍 Altura actual de la ventana:", window.innerHeight);
+    }
+
+    // Listener para el evento de redimensionar la ventana (solo para depuración)
+    window.addEventListener('resize', checkHeight);
+
+    // Al cargar la página se imprime la altura inicial
+    window.onload = checkHeight;
+  </script>
 </body>
+
 </html>

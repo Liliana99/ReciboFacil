@@ -217,4 +217,7 @@ class HomeCubit extends Cubit<HomeStateCubit> {
 
   void updateIsLoading(bool newValue) =>
       emit(state.copyWith(isLoading: newValue));
+
+  void updateIsCompleted(bool newValue) =>
+      emit(state.copyWith(isComplete: newValue));
 }

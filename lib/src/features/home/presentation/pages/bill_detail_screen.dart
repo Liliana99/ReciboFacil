@@ -34,6 +34,8 @@ class BillDetailScreen extends StatelessWidget {
 
     final infoCard2Height = size.height * 0.20;
 
+    print('height ${size.height}');
+
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -47,6 +49,7 @@ class BillDetailScreen extends StatelessWidget {
               () {
                 if (currentState.hasNavigated!) {
                   homeCubit.updateHasNavigate(false);
+                  homeCubit.updateIsCompleted(false);
                 }
               },
             );
@@ -235,8 +238,9 @@ Widget _buildOption({
             text,
             style: getResponsiveTextStyle(
                 context, context.labelS!, context.labelL!),
-            maxLines: 2,
+            maxLines: 3,
             textAlign: TextAlign.center, // Usa `center` para mejor alineación
+            overflow: TextOverflow.ellipsis,
           ),
         ),
       ],
