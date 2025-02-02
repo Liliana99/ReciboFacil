@@ -37,10 +37,6 @@ class HomeScreen extends StatelessWidget {
     return LayoutBuilder(builder: (context, constraints) {
       bool isSmallScreen = constraints.maxWidth <= minWidth;
 
-      print("constraints.maxWidth: ${constraints.maxWidth}");
-
-      print("constraints.maxHeight: ${constraints.maxHeight}");
-
       return Scaffold(
         backgroundColor: Colors.white,
         body: BlocConsumer<HomeCubit, HomeStateCubit>(
@@ -148,10 +144,9 @@ class HomeScreen extends StatelessWidget {
           showUnselectedLabels: true,
           items: const [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Inicio"),
-            BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: "I"),
-            BottomNavigationBarItem(icon: Icon(Icons.payment), label: "P"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.currency_bitcoin), label: "C"),
+                icon: Icon(Icons.bar_chart), label: "Graficos"),
+            BottomNavigationBarItem(icon: Icon(Icons.payment), label: "Recibo"),
             BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: "Más"),
           ],
         ),

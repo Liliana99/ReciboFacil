@@ -1,13 +1,16 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:pdfrx/pdfrx.dart';
 import 'package:recibo_facil/src/features/data/repositories/pdf_repository.dart';
 import 'package:recibo_facil/src/features/home/presentation/blocs/home_state_cubit.dart';
 import 'package:recibo_facil/src/features/data/reconized_text.dart';
-
+import 'dart:html' as html;
 import 'package:url_launcher/url_launcher.dart';
 
 import 'utils/get_energy_advice.dart';
@@ -82,29 +85,57 @@ class HomeCubit extends Cubit<HomeStateCubit> {
     }
   }
 
-  Future<PdfDocument> loadPdf(final String pdfPath) async {
-    final docRef = PdfDocumentRefFile(pdfPath);
-    PdfDocument document = await docRef.loadDocument(
-      (int pageNumber, [int? pageCount]) {
-        // Progreso de la carga
-        updateIsScanning(true);
+  Future<PdfDocument> loadPdf({String? pdfPath, Uint8List? pdfBytes}) async {
+    if ((kIsWeb && pdfBytes == null) || (!kIsWeb && pdfPath == null)) {
+      throw ArgumentError("Debe proveerse 'pdfPath' o 'pdfBytes'.");
+    }
+    late final PdfDocumentRef docRef;
+    late final pdfDocumentFromWeb;
 
-        emit(
-          state.copyWith(
-              progressMessage: pageCount != null
-                  ? "Cargando página $pageNumber de $pageCount..."
-                  : "Cargando página $pageNumber..."),
-        );
-      },
-      (totalPages, loadedPages, duration) {
-        // Reporte final
-        emit(state.copyWith(
-            progressMessage:
-                "Cargado: $loadedPages / $totalPages páginas en $duration."));
+    if (kIsWeb && pdfBytes!.isNotEmpty) {
+      pdfDocumentFromWeb = (await PdfDocument.openData(pdfBytes));
+    } else {
+      docRef = PdfDocumentRefFile(
+          pdfPath!); // Otras plataformas usan la ruta del archivo
+    }
 
-        updateIsScanning(false);
-      },
-    );
+    PdfDocument document = kIsWeb
+        ? await loadPdfDocument(null, pdfDocumentFromWeb)
+        : await loadPdfDocument(docRef, null);
+    return document;
+  }
+
+  Future<PdfDocument> loadPdfDocument(
+      PdfDocumentRef? docRef, PdfDocument? documentFromWeb) async {
+    late PdfDocument document;
+
+    if (kIsWeb && documentFromWeb != null) {
+      document = documentFromWeb;
+
+      updateIsScanning(false);
+    } else {
+      document = await docRef!.loadDocument(
+        (int pageNumber, [int? pageCount]) {
+          // Progreso de la carga
+          updateIsScanning(true);
+
+          emit(
+            state.copyWith(
+                progressMessage: pageCount != null
+                    ? "Cargando página $pageNumber de $pageCount..."
+                    : "Cargando página $pageNumber..."),
+          );
+        },
+        (totalPages, loadedPages, duration) {
+          // Reporte final
+          emit(state.copyWith(
+              progressMessage:
+                  "Cargado: $loadedPages / $totalPages páginas en $duration."));
+
+          updateIsScanning(false);
+        },
+      );
+    }
     return document;
   }
 
@@ -160,13 +191,17 @@ class HomeCubit extends Cubit<HomeStateCubit> {
 
   Future<void> selectAndOpenPdf() async {
     try {
+      if (kIsWeb) {
+        await pickPdfFileForWeb();
+        return;
+      }
       // Seleccionar el archivo PDF
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
 
-      if (result != null) {
+      if (result != null && result.files.isNotEmpty) {
         String? pdfPath = result.files.single.path;
 
         if (pdfPath != null) {
@@ -176,33 +211,39 @@ class HomeCubit extends Cubit<HomeStateCubit> {
           updateHasNavigate(false);
 
           // Procesar el archivo PDF
-          final document = await loadPdf(pdfPath);
+          final document = await loadPdf(pdfPath: pdfPath);
 
           // Buscar términos en el documento
-          await searchPdf(document, [
-            "total importe a pagar",
-            "Periodo de facturación",
-            "nº factura",
-            "Datos del contrato de electricidad",
-            "Potencias contratadas",
-            "CUPS",
-            "Contrato de mercado libre:",
-            "kwh evolucion del consumo",
-            "INFORMACIÓN PARA EL CONSUMIDOR"
-          ]);
-
-          emit(
-            state.copyWith(
-                isLoading: false, hasNavigated: true, isComplete: true),
-          ); // Emitir estado de escaneo completo
+          await searchQueryOnPdf(document); // Emitir estado de escaneo completo
         }
       } else {
         emit(state.copyWith(
-            isError: "Selección de archivo cancelada")); // Emitir error
+            isError: "Selección de archivo cancelada",
+            isLoading: false)); // Emitir error
       }
     } catch (e) {
-      emit(state.copyWith(isError: "Error procesando el archivo: $e"));
+      emit(state.copyWith(
+          isError: "Error procesando el archivo: $e, ", isLoading: false));
     }
+  }
+
+  Future<void> searchQueryOnPdf(PdfDocument document) async {
+    // Buscar términos en el documento
+    await searchPdf(document, [
+      "total importe a pagar",
+      "Periodo de facturación",
+      "nº factura",
+      "Datos del contrato de electricidad",
+      "Potencias contratadas",
+      "CUPS",
+      "Contrato de mercado libre:",
+      "kwh evolucion del consumo",
+      "INFORMACIÓN PARA EL CONSUMIDOR"
+    ]);
+
+    emit(
+      state.copyWith(isLoading: false, hasNavigated: true, isComplete: true),
+    ); // Emitir estado de escaneo completo
   }
 
   Future<void> launcLink(String url) async {
@@ -220,4 +261,57 @@ class HomeCubit extends Cubit<HomeStateCubit> {
 
   void updateIsCompleted(bool newValue) =>
       emit(state.copyWith(isComplete: newValue));
+
+  Future<void> pickPdfFileForWeb() async {
+    // Crear un input de tipo file
+    try {
+      final html.FileUploadInputElement input = html.FileUploadInputElement();
+      input.accept = ".pdf"; // Solo permite archivos PDF
+      input.multiple = false; // No permite seleccionar múltiples archivos
+
+      // Completer para manejar la respuesta de forma asíncrona
+      final completer = Completer<Uint8List?>();
+
+      // Escuchar el evento de selección de archivos
+      input.onChange.listen((event) async {
+        final List<html.File>? files = input.files;
+        if (files != null && files.isNotEmpty) {
+          final html.File file = files.first;
+
+          // Usar FileReader para leer el contenido del archivo
+          final reader = html.FileReader();
+          reader.readAsArrayBuffer(file);
+
+          // Esperar a que termine la lectura
+          await reader.onLoad.first;
+          final Uint8List fileBytes = reader.result as Uint8List;
+
+          // Completar con los bytes del archivo seleccionado
+          completer.complete(fileBytes);
+        } else {
+          // Si el usuario cancela la selección
+          completer.complete(null);
+        }
+      });
+
+      // Simular el clic para abrir el diálogo de selección
+      input.click();
+
+      // Obtener los bytes del archivo seleccionado
+      Uint8List? pdfBytes = await completer.future;
+
+      if (pdfBytes != null) {
+        print("Archivo PDF seleccionado con tamaño: ${pdfBytes.length} bytes");
+
+        // Pasar los bytes del PDF al método loadPdf
+        final PdfDocument document = await loadPdf(pdfBytes: pdfBytes);
+        // Buscar términos en el documento
+        await searchQueryOnPdf(document); // Emitir estado de escaneo completo
+      } else {
+        print("No se seleccionó ningún archivo.");
+      }
+    } on Exception catch (e) {
+      print('Error $e');
+    }
+  }
 }
