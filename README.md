@@ -1,29 +1,47 @@
-# recibo_facil
+# # 🚀 Recibo Fácil — Flutter Web App
 
-A new Flutter project.
+Aplicación web desarrollada en **Flutter** para la visualización y gestión de recibos eléctricos, con enfoque en rendimiento, claridad visual y arquitectura limpia.
 
-## Getting Started
+🔗 **Live Demo:** https://TU-URL.firebaseapp.com  
+🔧 Portfolio currently under reconstruction (Flutter Web in progress) 
 
-This project is a starting point for a Flutter application that follows the
-[simple app state management
-tutorial](https://flutter.dev/to/state-management-sample).
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ✨ Features
 
-## Assets
+- 📊 Visualización de consumo eléctrico
+- ⚡ Interfaz moderna y responsive
+- 🧱 Arquitectura basada en BLoC
+- 🌐 Flutter Web ready
+- 🚀 Deploy en Firebase Hosting
 
-The `assets` directory houses images, fonts, and any other files you want to
-include with your application.
+---
 
-The `assets/images` directory contains [resolution-aware
-images](https://flutter.dev/to/resolution-aware-images).
+## 🧠 Tech Stack
 
-## Localization
+**Frontend**
+- Flutter
+- Dart
+- Responsive Design
+- Material UI
 
-This project generates localized messages based on arb files found in
-the `lib/src/localization` directory.
+**Architecture**
+- BLoC Pattern
+- Clean Architecture
 
-To support additional languages, please visit the tutorial on
-[Internationalizing Flutter apps](https://flutter.dev/to/internationalization).
+**Deployment**
+- Firebase Hosting
+
+---
+
+## 🖥️ Preview
+
+> (Aquí luego puedes poner screenshot)
+
+---
+
+## 🚀 Getting Started
+
+```bash
+flutter pub get
+flutter run -d chrome
