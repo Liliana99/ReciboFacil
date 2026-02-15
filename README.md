@@ -2,7 +2,7 @@
 
 Aplicación web desarrollada en **Flutter** para la visualización y gestión de recibos eléctricos, con enfoque en rendimiento, claridad visual y arquitectura limpia.
 
-🔗 **Live Demo:** https://TU-URL.firebaseapp.com  
+🔗 **Live Demo:** https://https://recibo-facil-app.web.app/#/home  
 🔧 Portfolio currently under reconstruction (Flutter Web in progress) 
 
 ---
